@@ -16,7 +16,7 @@ import {
 import { formatCurrency, formatRelativeTime } from "@/lib/utils";
 import { getQuoteStatus, getStatusLabel, getStatusIcon, getStatusColor } from "@/lib/quote-status";
 import { calculateQuoteTotals } from "@/lib/quote-calculations";
-import { Eye, ExternalLink, Mail, Loader2, MoreVertical, Copy, Check } from "lucide-react";
+import { Eye, ExternalLink, Mail, Loader2, MoreVertical, Copy, Check, Share2 } from "lucide-react";
 import { sendQuoteEmail, trackQuoteLinkCopy } from "@/app/actions/quotes";
 import { QuoteViewDialog } from "@/components/quote-view-dialog";
 
@@ -68,6 +68,45 @@ export function QuotesTable({ quotes }: { quotes: QuoteWithRelations[] }) {
     } catch (error) {
       setAlert({ type: "error", message: "Failed to copy link" });
       setTimeout(() => setAlert(null), 3000);
+    }
+  };
+
+  const handleShare = async (quote: QuoteWithRelations) => {
+    const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+    const quoteUrl = `${baseUrl}/q/${quote.id}`;
+
+    const { total } = calculateQuoteTotals(
+      quote.items,
+      quote.discountType,
+      quote.discount
+    );
+
+    const shareTitle = `Quote for ${quote.clientName}`;
+    const shareText = `Quote for ${formatCurrency(total)} - view details:`;
+
+    // Check if Web Share API is supported
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: quoteUrl,
+        });
+
+        // Track the share (optional - you can track successful shares)
+        await trackQuoteLinkCopy(quote.id);
+        router.refresh();
+      } catch (error) {
+        // User cancelled or error occurred
+        if ((error as Error).name !== "AbortError") {
+          console.error("Error sharing:", error);
+          // Fallback to copy
+          handleCopyLink(quote.id);
+        }
+      }
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      handleCopyLink(quote.id);
     }
   };
 
@@ -200,6 +239,10 @@ export function QuotesTable({ quotes }: { quotes: QuoteWithRelations[] }) {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => handleShare(quote)}>
+                        <Share2 className="h-4 w-4 mr-2" />
+                        Share
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleCopyLink(quote.id)}>
                         {copiedQuoteId === quote.id ? (
                           <Check className="h-4 w-4 mr-2 text-green-600" />

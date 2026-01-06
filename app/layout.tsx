@@ -7,6 +7,12 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "PingQuote - Know when your quote is viewed",
   description: "Create simple estimates, share them as links, and get notified when they're actually opened.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "PingQuote",
+  },
 };
 
 export default function RootLayout({
