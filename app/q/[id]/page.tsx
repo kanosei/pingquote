@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const quoteUrl = `${baseUrl}/q/${params.id}`;
-  const ogImageUrl = `${baseUrl}/og-image.svg`;
+  const ogImageUrl = `${baseUrl}/api/og`;
 
   const { total } = calculateQuoteTotals(quote.items, quote.discountType, quote.discount);
 
