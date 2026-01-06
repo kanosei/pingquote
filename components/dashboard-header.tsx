@@ -8,23 +8,24 @@ import { LogOut, Plus } from "lucide-react";
 
 export function DashboardHeader() {
   return (
-    <header className="border-b bg-white">
+    <header className="border-b bg-white sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-14 sm:h-16">
           <Link href="/dashboard">
             <Logo />
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link href="/quotes/new">
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                New Quote
+              <Button size="sm" className="sm:h-10">
+                <Plus className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">New Quote</span>
               </Button>
             </Link>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => signOut({ callbackUrl: "/" })}
+              className="h-9 w-9 sm:h-10 sm:w-10"
             >
               <LogOut className="h-4 w-4" />
             </Button>

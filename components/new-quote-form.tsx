@@ -212,22 +212,25 @@ export function NewQuoteForm({ clients, lineItems }: NewQuoteFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {items.map((item, index) => (
-            <div key={index} className="space-y-2">
-              <div className="flex gap-3 items-end">
+            <div key={index} className="space-y-3 p-4 border rounded-lg bg-gray-50">
+              {/* Description - Full width */}
+              <div>
+                <Label htmlFor={`description-${index}`}>Description</Label>
+                <AutocompleteInput
+                  id={`description-${index}`}
+                  options={lineItemOptions}
+                  value={item.description}
+                  onChange={(value) => updateItem(index, "description", value)}
+                  onSelect={(option) => handleLineItemSelect(index, option)}
+                  placeholder="Start typing service/product..."
+                  disabled={loading}
+                />
+              </div>
+
+              {/* Quantity, Price, and Delete - Horizontal on mobile, better spacing */}
+              <div className="flex gap-2 items-end">
                 <div className="flex-1">
-                  <Label htmlFor={`description-${index}`}>Description</Label>
-                  <AutocompleteInput
-                    id={`description-${index}`}
-                    options={lineItemOptions}
-                    value={item.description}
-                    onChange={(value) => updateItem(index, "description", value)}
-                    onSelect={(option) => handleLineItemSelect(index, option)}
-                    placeholder="Start typing service/product..."
-                    disabled={loading}
-                  />
-                </div>
-                <div className="w-24">
-                  <Label htmlFor={`quantity-${index}`}>Quantity</Label>
+                  <Label htmlFor={`quantity-${index}`}>Qty</Label>
                   <Input
                     id={`quantity-${index}`}
                     type="number"
@@ -238,7 +241,7 @@ export function NewQuoteForm({ clients, lineItems }: NewQuoteFormProps) {
                     disabled={loading}
                   />
                 </div>
-                <div className="w-32">
+                <div className="flex-1">
                   <Label htmlFor={`price-${index}`}>Price</Label>
                   <Input
                     id={`price-${index}`}
@@ -257,9 +260,15 @@ export function NewQuoteForm({ clients, lineItems }: NewQuoteFormProps) {
                   size="icon"
                   onClick={() => removeItem(index)}
                   disabled={items.length === 1 || loading}
+                  className="shrink-0"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
+              </div>
+
+              {/* Show line total on mobile */}
+              <div className="text-sm text-gray-600 text-right font-medium">
+                Total: {formatCurrency(item.quantity * item.price)}
               </div>
             </div>
           ))}

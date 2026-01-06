@@ -76,8 +76,8 @@ export default async function PublicQuotePage({ params }: { params: { id: string
       <div className="min-h-screen bg-gray-50 py-12 px-4">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
-          <div className="bg-white rounded-lg shadow-sm border p-8 mb-6">
-            <div className="flex items-start justify-between mb-8">
+          <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-8 mb-6">
+            <div className="flex items-start justify-between mb-6 sm:mb-8">
               <div>
                 <Logo size="large" />
                 <p className="text-sm text-gray-600 mt-2">Quote</p>
@@ -104,31 +104,59 @@ export default async function PublicQuotePage({ params }: { params: { id: string
           </div>
 
           {/* Line Items */}
-          <div className="bg-white rounded-lg shadow-sm border p-8 mb-6">
+          <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-8 mb-6">
             <h2 className="text-xl font-semibold mb-6">Quote Details</h2>
 
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left pb-3 font-medium text-gray-600">Description</th>
-                  <th className="text-right pb-3 font-medium text-gray-600">Qty</th>
-                  <th className="text-right pb-3 font-medium text-gray-600">Price</th>
-                  <th className="text-right pb-3 font-medium text-gray-600">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {quote.items.map((item) => (
-                  <tr key={item.id} className="border-b last:border-0">
-                    <td className="py-4">{item.description}</td>
-                    <td className="py-4 text-right">{item.quantity}</td>
-                    <td className="py-4 text-right">{formatCurrency(item.price)}</td>
-                    <td className="py-4 text-right font-medium">
-                      {formatCurrency(item.quantity * item.price)}
-                    </td>
+            {/* Desktop Table View */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left pb-3 font-medium text-gray-600">Description</th>
+                    <th className="text-right pb-3 font-medium text-gray-600">Qty</th>
+                    <th className="text-right pb-3 font-medium text-gray-600">Price</th>
+                    <th className="text-right pb-3 font-medium text-gray-600">Amount</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {quote.items.map((item) => (
+                    <tr key={item.id} className="border-b last:border-0">
+                      <td className="py-4">{item.description}</td>
+                      <td className="py-4 text-right">{item.quantity}</td>
+                      <td className="py-4 text-right">{formatCurrency(item.price)}</td>
+                      <td className="py-4 text-right font-medium">
+                        {formatCurrency(item.quantity * item.price)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="sm:hidden space-y-4">
+              {quote.items.map((item) => (
+                <div key={item.id} className="border rounded-lg p-4 bg-gray-50">
+                  <div className="font-medium text-gray-900 mb-2">{item.description}</div>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span className="text-gray-600">Quantity:</span>
+                      <span className="ml-2 font-medium">{item.quantity}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-gray-600">Price:</span>
+                      <span className="ml-2 font-medium">{formatCurrency(item.price)}</span>
+                    </div>
+                  </div>
+                  <div className="mt-2 pt-2 border-t flex justify-between items-center">
+                    <span className="text-gray-600 text-sm">Total:</span>
+                    <span className="font-bold text-lg">
+                      {formatCurrency(item.quantity * item.price)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
 
             {/* Totals */}
             <div className="mt-6 pt-6 border-t">
@@ -160,7 +188,7 @@ export default async function PublicQuotePage({ params }: { params: { id: string
 
           {/* Notes */}
           {quote.notes && (
-            <div className="bg-white rounded-lg shadow-sm border p-8">
+            <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-8">
               <h2 className="text-xl font-semibold mb-4">Additional Notes</h2>
               <p className="text-gray-700 whitespace-pre-wrap">{quote.notes}</p>
             </div>
