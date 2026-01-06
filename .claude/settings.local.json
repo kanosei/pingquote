@@ -16,7 +16,11 @@
       "Bash(npm uninstall:*)",
       "Bash(pnpm install:*)",
       "Bash(git init:*)",
-      "Bash(git branch:*)"
+      "Bash(git branch:*)",
+      "Bash(gh repo create:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
