@@ -31,7 +31,10 @@ export default async function DashboardPage() {
         <QuoteStatsCards stats={stats} />
 
         <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
-          <QuotesTableWithFilters quotes={quotes} />
+          <QuotesTableWithFilters
+            quotes={quotes}
+            senderName={session.user?.name || "PingQuote"}
+          />
         </div>
       </main>
     </div>

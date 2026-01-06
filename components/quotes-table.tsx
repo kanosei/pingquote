@@ -25,7 +25,13 @@ type QuoteWithRelations = Quote & {
   views: QuoteView[];
 };
 
-export function QuotesTable({ quotes }: { quotes: QuoteWithRelations[] }) {
+export function QuotesTable({
+  quotes,
+  senderName,
+}: {
+  quotes: QuoteWithRelations[];
+  senderName: string;
+}) {
   const router = useRouter();
   const [sendingEmail, setSendingEmail] = useState<string | null>(null);
   const [viewDialogQuote, setViewDialogQuote] = useState<QuoteWithRelations | null>(null);
@@ -75,18 +81,8 @@ export function QuotesTable({ quotes }: { quotes: QuoteWithRelations[] }) {
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
     const quoteUrl = `${baseUrl}/q/${quote.id}`;
 
-    const { total } = calculateQuoteTotals(
-      quote.items,
-      quote.discountType,
-      quote.discount
-    );
-
-    // Create a more detailed share message that looks good before the preview loads
-    const itemCount = quote.items.length;
-    const itemsText = itemCount === 1 ? "item" : "items";
-
-    const shareTitle = `Quote for ${quote.clientName}`;
-    const shareText = `💰 Quote: ${formatCurrency(total)}\n📋 ${itemCount} ${itemsText}\n👤 ${quote.clientName}\n\nView quote details:`;
+    const shareTitle = `Quote from ${senderName}`;
+    const shareText = `${senderName} sent you a quote to review`;
 
     // Check if Web Share API is supported
     if (navigator.share) {

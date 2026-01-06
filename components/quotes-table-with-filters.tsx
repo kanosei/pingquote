@@ -13,9 +13,10 @@ type QuoteWithRelations = Quote & {
 
 interface QuotesTableWithFiltersProps {
   quotes: QuoteWithRelations[];
+  senderName: string;
 }
 
-export function QuotesTableWithFilters({ quotes }: QuotesTableWithFiltersProps) {
+export function QuotesTableWithFilters({ quotes, senderName }: QuotesTableWithFiltersProps) {
   const [activeFilter, setActiveFilter] = useState<QuoteFilter>("all");
 
   // Calculate filter counts
@@ -73,7 +74,7 @@ export function QuotesTableWithFilters({ quotes }: QuotesTableWithFiltersProps) 
         onFilterChange={setActiveFilter}
         counts={filterCounts}
       />
-      <QuotesTable quotes={filteredQuotes} />
+      <QuotesTable quotes={filteredQuotes} senderName={senderName} />
     </div>
   );
 }
