@@ -14,7 +14,7 @@ export async function GET() {
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: '#ffffff',
-          background: 'linear-gradient(to bottom right, #f8fafc, #e2e8f0)',
+          background: 'linear-gradient(to bottom right, #f0fdf4, #dcfce7)',
         }}
       >
         {/* Icon */}
@@ -26,7 +26,7 @@ export async function GET() {
             width: 100,
             height: 100,
             borderRadius: 16,
-            backgroundColor: '#1e293b',
+            backgroundColor: '#1a9d5c',
             marginBottom: 20,
           }}
         >
@@ -53,11 +53,11 @@ export async function GET() {
             display: 'flex',
             fontSize: 80,
             fontWeight: 700,
-            color: '#1e293b',
+            color: '#0f172a',
             marginBottom: 20,
           }}
         >
-          Ping<span style={{ color: '#1e293b' }}>Quote</span>
+          Ping<span style={{ color: '#1a9d5c' }}>Quote</span>
         </div>
 
         {/* Tagline */}
@@ -65,7 +65,7 @@ export async function GET() {
           style={{
             display: 'flex',
             fontSize: 36,
-            color: '#64748b',
+            color: '#475569',
           }}
         >
           Your personalized quote
@@ -79,8 +79,8 @@ export async function GET() {
             width: 400,
             height: 4,
             borderRadius: 2,
-            backgroundColor: '#1e293b',
-            opacity: 0.2,
+            backgroundColor: '#1a9d5c',
+            opacity: 0.3,
           }}
         />
       </div>
