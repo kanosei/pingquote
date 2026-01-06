@@ -6,6 +6,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrency(amount: number): string {
+  if (amount === 0) {
+    return "";
+  }
   return new Intl.NumberFormat("en-GB", {
     style: "currency",
     currency: "GBP",

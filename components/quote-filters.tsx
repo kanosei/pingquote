@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Flame, Smile, Snowflake, Eye, EyeOff, Search } from "lucide-react";
+import { Flame, Smile, Snowflake, Eye, EyeOff, Search, X } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -82,6 +82,8 @@ export function QuoteFilters({
     },
   ];
 
+  const showClearButton = searchTerm || activeFilter !== "all";
+
   return (
     <TooltipProvider>
       <div className="flex flex-col gap-4 mb-6">
@@ -94,8 +96,21 @@ export function QuoteFilters({
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10 w-full"
           />
+          {showClearButton && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                onFilterChange("all");
+                onSearchChange("");
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {filters.map((filter) => {
             const Icon = filter.icon;
             const isActive = activeFilter === filter.id;
