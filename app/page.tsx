@@ -30,7 +30,7 @@ export default function LandingPage() {
             Know when your quote is viewed.
           </h1>
           <p className="text-xl text-gray-600 mb-8">
-            Create simple estimates, share them as links, and get notified when they're actually opened.
+            Create simple estimates, share them as links, and get notified when they&apos;re actually opened.
           </p>
           <Link href="/signup">
             <Button size="lg" className="text-lg px-8 h-12">
@@ -123,7 +123,7 @@ export default function LandingPage() {
             </div>
             <h3 className="text-lg font-semibold mb-2">Follow up at the right time</h3>
             <p className="text-gray-600">
-              Get instant visibility when quotes are viewed so you can reach out while you're top of mind.
+              Get instant visibility when quotes are viewed so you can reach out while you&apos;re top of mind.
             </p>
           </div>
 

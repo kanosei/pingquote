@@ -9,7 +9,7 @@ export default function NotFound() {
         <Logo size="large" />
         <h1 className="text-2xl font-bold mt-8 mb-2">Quote not found</h1>
         <p className="text-gray-600 mb-6">
-          This quote doesn't exist or has been removed.
+          This quote doesn&apos;t exist or has been removed.
         </p>
         <Link href="/">
           <Button>Go to homepage</Button>

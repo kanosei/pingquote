@@ -9,7 +9,7 @@ interface AutocompleteOption {
   label: string;
 }
 
-interface AutocompleteInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange"> {
+interface AutocompleteInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "onSelect"> {
   options: AutocompleteOption[];
   value: string;
   onChange: (value: string) => void;
