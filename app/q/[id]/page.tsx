@@ -3,6 +3,7 @@ import { getPublicQuote } from "@/app/actions/public";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { calculateQuoteTotals } from "@/lib/quote-calculations";
 import { QuoteViewTracker } from "@/components/quote-view-tracker";
+import { ShareButton } from "@/components/share-button";
 import { Logo } from "@/components/logo";
 import { Metadata } from "next";
 
@@ -68,6 +69,12 @@ export default async function PublicQuotePage({ params }: { params: { id: string
     quote.discount
   );
 
+  // Generate share content
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const quoteUrl = `${baseUrl}/q/${params.id}`;
+  const shareTitle = `Quote from ${quote.user.name || "PingQuote"}`;
+  const shareText = `${quote.user.name || "PingQuote"} sent you a quote for ${formatCurrency(total)}. View the details here:`;
+
   return (
     <>
       {/* Client-side component to track view on mount */}
@@ -77,15 +84,27 @@ export default async function PublicQuotePage({ params }: { params: { id: string
         <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-8 mb-6">
-            <div className="flex items-start justify-between mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-6 sm:mb-8">
               <div>
                 <Logo size="large" />
                 <p className="text-sm text-gray-600 mt-2">Quote</p>
               </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-600">Date</p>
-                <p className="font-medium">{formatDate(quote.createdAt)}</p>
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <ShareButton
+                  title={shareTitle}
+                  text={shareText}
+                  url={quoteUrl}
+                />
+                <div className="hidden sm:block text-right">
+                  <p className="text-sm text-gray-600">Date</p>
+                  <p className="font-medium">{formatDate(quote.createdAt)}</p>
+                </div>
               </div>
+            </div>
+
+            <div className="sm:hidden mb-6 text-right">
+              <p className="text-sm text-gray-600">Date</p>
+              <p className="font-medium">{formatDate(quote.createdAt)}</p>
             </div>
 
             <div className="border-t pt-6">
