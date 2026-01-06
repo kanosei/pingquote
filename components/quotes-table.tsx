@@ -18,6 +18,7 @@ import { getQuoteStatus, getStatusLabel, getStatusIcon, getStatusColor } from "@
 import { calculateQuoteTotals } from "@/lib/quote-calculations";
 import { Eye, ExternalLink, Mail, Loader2, MoreVertical, Copy, Check, Share2 } from "lucide-react";
 import { sendQuoteEmail, trackQuoteLinkCopy } from "@/app/actions/quotes";
+import { QuoteViewHistoryDialog } from "@/components/quote-view-history-dialog";
 import { QuoteViewDialog } from "@/components/quote-view-dialog";
 
 type QuoteWithRelations = Quote & {
@@ -35,6 +36,7 @@ export function QuotesTable({
   const router = useRouter();
   const [sendingEmail, setSendingEmail] = useState<string | null>(null);
   const [viewDialogQuote, setViewDialogQuote] = useState<QuoteWithRelations | null>(null);
+  const [viewHistoryQuote, setViewHistoryQuote] = useState<QuoteWithRelations | null>(null);
   const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [copiedQuoteId, setCopiedQuoteId] = useState<string | null>(null);
 
@@ -147,7 +149,7 @@ export function QuotesTable({
             <TableHead>Client</TableHead>
             <TableHead>Value</TableHead>
             <TableHead className="hidden md:table-cell">Status</TableHead>
-            <TableHead className="hidden lg:table-cell">Last Viewed</TableHead>
+            <TableHead className="hidden lg:table-cell">Views</TableHead>
             <TableHead className="text-right w-[50px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -160,6 +162,7 @@ export function QuotesTable({
               quote.discount
             );
             const lastView = quote.views[0];
+            const viewCount = quote.views.length;
 
             return (
               <TableRow key={quote.id}>
@@ -202,8 +205,18 @@ export function QuotesTable({
                     <span>{getStatusLabel(status)}</span>
                   </span>
                 </TableCell>
-                <TableCell className="hidden lg:table-cell text-gray-600">
-                  {lastView ? formatRelativeTime(lastView.viewedAt) : "Never"}
+                <TableCell className="hidden lg:table-cell">
+                  {viewCount > 0 ? (
+                    <Button
+                      variant="link"
+                      className="p-0 h-auto text-gray-600 hover:text-gray-900"
+                      onClick={() => setViewHistoryQuote(quote)}
+                    >
+                      {viewCount} {viewCount === 1 ? "view" : "views"}
+                    </Button>
+                  ) : (
+                    <span className="text-gray-500">No views yet</span>
+                  )}
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
@@ -235,7 +248,7 @@ export function QuotesTable({
                           className="flex items-center"
                         >
                           <ExternalLink className="h-4 w-4 mr-2" />
-                          View
+                          View Public Page
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
@@ -274,6 +287,14 @@ export function QuotesTable({
           quote={viewDialogQuote}
           open={!!viewDialogQuote}
           onOpenChange={(open) => !open && setViewDialogQuote(null)}
+        />
+      )}
+
+      {viewHistoryQuote && (
+        <QuoteViewHistoryDialog
+          quote={viewHistoryQuote}
+          open={!!viewHistoryQuote}
+          onOpenChange={(open) => !open && setViewHistoryQuote(null)}
         />
       )}
     </>
