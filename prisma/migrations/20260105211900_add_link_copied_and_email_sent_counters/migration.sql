@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "quotes" ADD COLUMN     "emailSent" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "linkCopied" INTEGER NOT NULL DEFAULT 0;

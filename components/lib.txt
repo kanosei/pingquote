@@ -1,0 +1,50 @@
+# shadcn/ui Components Included
+
+This file lists all the shadcn/ui components that have been manually added to this project.
+
+## Installed Components
+
+- button
+- input
+- label
+- textarea
+- card
+- table
+- badge
+
+## Adding More Components
+
+To add additional shadcn/ui components:
+
+```bash
+npx shadcn-ui@latest add [component-name]
+```
+
+Example:
+```bash
+npx shadcn-ui@latest add dialog
+npx shadcn-ui@latest add dropdown-menu
+npx shadcn-ui@latest add select
+```
+
+## Available Components
+
+Visit https://ui.shadcn.com/docs/components to see all available components.
+
+Common components you might want to add:
+- alert
+- avatar
+- checkbox
+- dialog
+- dropdown-menu
+- select
+- separator
+- switch
+- tabs
+- toast
+
+## Custom Configuration
+
+All components use the design tokens defined in:
+- app/globals.css (CSS variables)
+- tailwind.config.ts (Tailwind theme)
