@@ -21,12 +21,19 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
   const { total } = calculateQuoteTotals(quote.items, quote.discountType, quote.discount);
 
+  const senderName = quote.user.name || "PingQuote";
+  const itemCount = quote.items.length;
+  const itemsText = itemCount === 1 ? "item" : "items";
+
+  const title = `${senderName} sent you a quote for ${formatCurrency(total)}`;
+  const description = `View your personalized quote with ${itemCount} ${itemsText} totaling ${formatCurrency(total)}. Click to see the full details and breakdown.`;
+
   return {
-    title: `Quote from ${quote.user.name || "PingQuote"}`,
-    description: `Your personalized quote - ${quote.items.length} items, ${formatCurrency(total)} total`,
+    title,
+    description,
     openGraph: {
-      title: `Quote from ${quote.user.name || "PingQuote"}`,
-      description: "Your personalized quote",
+      title,
+      description,
       url: quoteUrl,
       siteName: "PingQuote",
       images: [
@@ -34,15 +41,15 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
           url: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: "PingQuote - Your personalized quote",
+          alt: "PingQuote - Professional Quote Management",
         },
       ],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: `Quote from ${quote.user.name || "PingQuote"}`,
-      description: "Your personalized quote",
+      title,
+      description,
       images: [ogImageUrl],
     },
   };
