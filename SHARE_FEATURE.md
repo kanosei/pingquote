@@ -14,7 +14,7 @@ When users click the "Share Quote" button:
 2. **Apps Available** - WhatsApp, iMessage, Instagram, Mail, Notes, etc.
 3. **Share Content Includes**:
    - **Title**: "Quote from [Sender Name]"
-   - **Text**: "[Sender] sent you a quote for £X,XXX. View the details here:"
+   - **Text**: "[Sender] sent you a quote to review. View the details here:"
    - **URL**: The direct link to the quote
 
 ### On Desktop / Unsupported Browsers
@@ -36,7 +36,7 @@ If Web Share API is not available:
 ```tsx
 <ShareButton
   title="Quote from John Doe"
-  text="John Doe sent you a quote for £2,500. View the details here:"
+  text="John Doe sent you a quote to review. View the details here:"
   url="https://yourapp.com/q/abc123"
 />
 ```
@@ -91,7 +91,7 @@ When someone shares via WhatsApp, for example:
 
 ```
 Quote from John Doe
-John Doe sent you a quote for £2,500. View the details here:
+John Doe sent you a quote to review. View the details here:
 https://yourapp.com/q/abc123
 ```
 

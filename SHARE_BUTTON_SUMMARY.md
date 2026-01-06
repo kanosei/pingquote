@@ -81,7 +81,7 @@ Example share on WhatsApp:
 
 ```
 Quote from John Doe
-John Doe sent you a quote for £2,500. View the details here:
+John Doe sent you a quote to review. View the details here:
 https://yourapp.com/q/abc123
 ```
 

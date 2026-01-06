@@ -81,8 +81,12 @@ export function QuotesTable({ quotes }: { quotes: QuoteWithRelations[] }) {
       quote.discount
     );
 
+    // Create a more detailed share message that looks good before the preview loads
+    const itemCount = quote.items.length;
+    const itemsText = itemCount === 1 ? "item" : "items";
+
     const shareTitle = `Quote for ${quote.clientName}`;
-    const shareText = `Quote for ${formatCurrency(total)} - view details:`;
+    const shareText = `💰 Quote: ${formatCurrency(total)}\n📋 ${itemCount} ${itemsText}\n👤 ${quote.clientName}\n\nView quote details:`;
 
     // Check if Web Share API is supported
     if (navigator.share) {

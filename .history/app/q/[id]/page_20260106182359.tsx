@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const itemCount = quote.items.length;
   const itemsText = itemCount === 1 ? "item" : "items";
 
-  const title = `${senderName} sent you a quote to review`;
+  const title = `${senderName} sent you a quote`;
   const description = `View your personalized quote with ${itemCount} ${itemsText} totaling ${formatCurrency(total)}. Click to see the full details and breakdown.`;
 
   return {
@@ -73,7 +73,7 @@ export default async function PublicQuotePage({ params }: { params: { id: string
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const quoteUrl = `${baseUrl}/q/${params.id}`;
   const shareTitle = `Quote from ${quote.user.name || "PingQuote"}`;
-  const shareText = `${quote.user.name || "PingQuote"} sent you a quote to review. View the details here:`;
+  const shareText = `${quote.user.name || "PingQuote"} sent you a quote for ${formatCurrency(total)}. View the details here:`;
 
   return (
     <>
