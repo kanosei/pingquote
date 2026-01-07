@@ -12,12 +12,14 @@ datasource db {
 
 // User model - ready for Stripe integration
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String?
+  password    String
+  companyName String?  // Company/business name
+  logoUrl     String?  // URL to uploaded company logo
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Stripe fields (for future implementation)
   // stripeCustomerId       String?   @unique

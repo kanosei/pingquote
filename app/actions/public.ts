@@ -17,6 +17,8 @@ export async function getPublicQuote(id: string) {
           select: {
             name: true,
             email: true,
+            companyName: true,
+            logoUrl: true,
           },
         },
       },

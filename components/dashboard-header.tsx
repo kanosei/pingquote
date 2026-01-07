@@ -4,7 +4,7 @@ import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
-import { LogOut, Plus } from "lucide-react";
+import { LogOut, Plus, Settings } from "lucide-react";
 
 export function DashboardHeader() {
   return (
@@ -19,6 +19,15 @@ export function DashboardHeader() {
               <Button size="sm" className="sm:h-10">
                 <Plus className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">New Quote</span>
+              </Button>
+            </Link>
+            <Link href="/settings">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 sm:h-10 sm:w-10"
+              >
+                <Settings className="h-4 w-4" />
               </Button>
             </Link>
             <Button

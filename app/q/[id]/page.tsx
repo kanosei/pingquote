@@ -6,6 +6,7 @@ import { QuoteViewTracker } from "@/components/quote-view-tracker";
 import { ShareButton } from "@/components/share-button";
 import { Logo } from "@/components/logo";
 import { Metadata } from "next";
+import Image from "next/image";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const quote = await getPublicQuote(params.id);
@@ -18,11 +19,20 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const quoteUrl = `${baseUrl}/q/${params.id}`;
-  const ogImageUrl = `${baseUrl}/api/og`;
+
+  // Build OG image URL with company info
+  const ogParams = new URLSearchParams();
+  if (quote.user.logoUrl) {
+    ogParams.set('logo', quote.user.logoUrl);
+  }
+  if (quote.user.companyName) {
+    ogParams.set('company', quote.user.companyName);
+  }
+  const ogImageUrl = `${baseUrl}/api/og?${ogParams.toString()}`;
 
   const { total } = calculateQuoteTotals(quote.items, quote.discountType, quote.discount);
 
-  const senderName = quote.user.name || "PingQuote";
+  const senderName = quote.user.companyName || quote.user.name || "PingQuote";
   const itemCount = quote.items.length;
   const itemsText = itemCount === 1 ? "item" : "items";
 
@@ -86,7 +96,32 @@ export default async function PublicQuotePage({ params }: { params: { id: string
           <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-8 mb-6">
             <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-6 sm:mb-8">
               <div>
-                <Logo size="large" />
+                {quote.user.logoUrl ? (
+                  <div>
+                    <Image
+                      src={quote.user.logoUrl}
+                      alt={quote.user.companyName || "Company logo"}
+                      width={150}
+                      height={60}
+                      className="object-contain"
+                      style={{ maxHeight: "60px", width: "auto" }}
+                    />
+                    {quote.user.companyName && (
+                      <p className="text-sm font-medium text-gray-900 mt-2">
+                        {quote.user.companyName}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <Logo size="large" />
+                    {quote.user.companyName && (
+                      <p className="text-sm font-medium text-gray-900 mt-2">
+                        {quote.user.companyName}
+                      </p>
+                    )}
+                  </>
+                )}
                 <p className="text-sm text-gray-600 mt-2">Quote</p>
               </div>
               <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -111,7 +146,12 @@ export default async function PublicQuotePage({ params }: { params: { id: string
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <h3 className="text-sm font-medium text-gray-600 mb-1">From</h3>
-                  <p className="font-medium">{quote.user.name || "PingQuote User"}</p>
+                  <p className="font-medium">
+                    {quote.user.companyName || quote.user.name || "PingQuote User"}
+                  </p>
+                  {quote.user.companyName && quote.user.name && (
+                    <p className="text-sm text-gray-700">{quote.user.name}</p>
+                  )}
                   <p className="text-sm text-gray-600">{quote.user.email}</p>
                 </div>
                 <div>
