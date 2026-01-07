@@ -3,13 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-const f = createUploadthing({
-  errorFormatter: (err) => {
-    return {
-      message: err.message,
-    };
-  },
-});
+const f = createUploadthing();
 
 export const ourFileRouter = {
   logoUploader: f({
@@ -18,7 +12,7 @@ export const ourFileRouter = {
       maxFileCount: 1,
     },
   })
-    .middleware(async ({ files, req }) => {
+    .middleware(async ({ files }) => {
       const session = await getServerSession(authOptions);
 
       if (!session?.user?.id) throw new Error("Unauthorized");
@@ -34,21 +28,21 @@ export const ourFileRouter = {
       // Generate custom filename: logo-<email>.<ext>
       const file = files[0];
       const ext = file.name.split('.').pop() || 'png';
-      const sanitizedEmail = user.email.replace(/[^a-zA-Z0-9]/g, '-');
-      const customKey = `logo-${sanitizedEmail}.${ext}`;
+      const sanitizedEmail = user.email.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
 
       return {
         userId: session.user.id,
         userEmail: user.email,
-        customKey,
+        customFileName: `logo-${sanitizedEmail}.${ext}`,
       };
     })
     .onUploadComplete(async ({ metadata, file }) => {
       console.log("Upload complete for:", metadata.userEmail);
+      console.log("Original file key:", file.key);
+      console.log("Custom filename should be:", metadata.customFileName);
 
       // Use ufsUrl (new API) if available, fallback to url for older versions
       const fileUrl = (file as any).ufsUrl || file.url;
-      console.log("File stored as:", file.key);
       console.log("File URL:", fileUrl);
 
       return { uploadedBy: metadata.userId, url: fileUrl };
