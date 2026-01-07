@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: '#ffffff',
-          background: 'linear-gradient(to bottom right, #f0fdf4, #dcfce7)',
+          background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
         }}
       >
         {/* Company Logo or Default Icon */}
@@ -27,12 +27,13 @@ export async function GET(request: NextRequest) {
           <img
             src={logoUrl}
             alt="Company logo"
-            width={120}
-            height={120}
+            width={240}
+            height={240}
             style={{
               objectFit: 'contain',
-              marginBottom: 30,
-              borderRadius: 16,
+              marginBottom: 40,
+              maxWidth: '400px',
+              maxHeight: '240px',
             }}
           />
         ) : (
@@ -41,16 +42,16 @@ export async function GET(request: NextRequest) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: 100,
-              height: 100,
-              borderRadius: 16,
-              backgroundColor: '#1a9d5c',
-              marginBottom: 20,
+              width: 120,
+              height: 120,
+              borderRadius: 24,
+              backgroundColor: '#64748b',
+              marginBottom: 30,
             }}
           >
             <svg
-              width="50"
-              height="50"
+              width="60"
+              height="60"
               viewBox="0 0 24 24"
               fill="none"
               stroke="#ffffff"
@@ -70,10 +71,10 @@ export async function GET(request: NextRequest) {
         <div
           style={{
             display: 'flex',
-            fontSize: companyName ? 60 : 80,
+            fontSize: companyName ? 64 : 80,
             fontWeight: 700,
-            color: '#0f172a',
-            marginBottom: 20,
+            color: '#1e293b',
+            marginBottom: 16,
             textAlign: 'center',
             maxWidth: '90%',
           }}
@@ -82,7 +83,7 @@ export async function GET(request: NextRequest) {
             companyName
           ) : (
             <>
-              Ping<span style={{ color: '#1a9d5c' }}>Quote</span>
+              Ping<span style={{ color: '#64748b' }}>Quote</span>
             </>
           )}
         </div>
@@ -91,8 +92,9 @@ export async function GET(request: NextRequest) {
         <div
           style={{
             display: 'flex',
-            fontSize: 36,
-            color: '#475569',
+            fontSize: 32,
+            color: '#64748b',
+            fontWeight: 500,
           }}
         >
           Your personalized quote
@@ -102,12 +104,12 @@ export async function GET(request: NextRequest) {
         <div
           style={{
             position: 'absolute',
-            bottom: 80,
-            width: 400,
-            height: 4,
+            bottom: 60,
+            width: 200,
+            height: 3,
             borderRadius: 2,
-            backgroundColor: '#1a9d5c',
-            opacity: 0.3,
+            backgroundColor: '#cbd5e1',
+            opacity: 0.6,
           }}
         />
       </div>
