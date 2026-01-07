@@ -8,6 +8,26 @@ export async function GET(request: NextRequest) {
   const logoUrl = searchParams.get('logo');
   const companyName = searchParams.get('company');
 
+  console.log('OG Image Request - Logo URL:', logoUrl);
+  console.log('OG Image Request - Company Name:', companyName);
+
+  // Fetch the logo image if provided to ensure it's accessible
+  let logoData = null;
+  if (logoUrl) {
+    try {
+      const logoResponse = await fetch(logoUrl);
+      if (logoResponse.ok) {
+        const arrayBuffer = await logoResponse.arrayBuffer();
+        logoData = `data:image/png;base64,${Buffer.from(arrayBuffer).toString('base64')}`;
+        console.log('Logo fetched and converted to base64');
+      } else {
+        console.error('Failed to fetch logo:', logoResponse.status);
+      }
+    } catch (error) {
+      console.error('Error fetching logo:', error);
+    }
+  }
+
   return new ImageResponse(
     (
       <div
@@ -23,10 +43,10 @@ export async function GET(request: NextRequest) {
         }}
       >
         {/* Company Logo or Default Icon */}
-        {logoUrl ? (
+        {logoData ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={logoUrl}
+            src={logoData}
             alt="Company logo"
             width={240}
             height={240}
