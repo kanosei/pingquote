@@ -3,7 +3,13 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-const f = createUploadthing();
+const f = createUploadthing({
+  errorFormatter: (err) => {
+    return {
+      message: err.message,
+    };
+  },
+});
 
 export const ourFileRouter = {
   logoUploader: f({
@@ -12,7 +18,7 @@ export const ourFileRouter = {
       maxFileCount: 1,
     },
   })
-    .middleware(async ({ files }) => {
+    .middleware(async ({ files, req }) => {
       const session = await getServerSession(authOptions);
 
       if (!session?.user?.id) throw new Error("Unauthorized");
@@ -29,17 +35,13 @@ export const ourFileRouter = {
       const file = files[0];
       const ext = file.name.split('.').pop() || 'png';
       const sanitizedEmail = user.email.replace(/[^a-zA-Z0-9]/g, '-');
+      const customKey = `logo-${sanitizedEmail}.${ext}`;
 
       return {
         userId: session.user.id,
         userEmail: user.email,
-        uploadedFileExt: ext,
-        sanitizedEmail,
+        customKey,
       };
-    })
-    .onBeforeGenerateKey(({ metadata }) => {
-      // Set custom key (filename) for the uploaded file
-      return `logo-${metadata.sanitizedEmail}.${metadata.uploadedFileExt}`;
     })
     .onUploadComplete(async ({ metadata, file }) => {
       console.log("Upload complete for:", metadata.userEmail);

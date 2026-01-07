@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
       >
         {/* Company Logo or Default Icon */}
         {logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={logoUrl}
             alt="Company logo"
