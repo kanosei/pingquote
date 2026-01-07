@@ -11,6 +11,7 @@ import { AutocompleteInput } from "@/components/ui/autocomplete-input";
 import { createQuote } from "@/app/actions/quotes";
 import { Plus, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { PaymentLinkPreview } from "@/components/payment-link-preview";
 
 interface QuoteItem {
   description: string;
@@ -45,6 +46,7 @@ export function NewQuoteForm({ clients, lineItems }: NewQuoteFormProps) {
   const [discountType, setDiscountType] = useState<"none" | "percentage" | "fixed">("none");
   const [discount, setDiscount] = useState(0);
   const [notes, setNotes] = useState("");
+  const [paymentLink, setPaymentLink] = useState("");
   const [items, setItems] = useState<QuoteItem[]>([
     { description: "", quantity: 1, price: 0 },
   ]);
@@ -144,6 +146,7 @@ export function NewQuoteForm({ clients, lineItems }: NewQuoteFormProps) {
       formData.append("discountType", discountType);
       formData.append("discount", discount.toString());
       formData.append("notes", notes);
+      formData.append("paymentLink", paymentLink);
       formData.append("items", JSON.stringify(validItems));
 
       const result = await createQuote(formData);
@@ -339,6 +342,27 @@ export function NewQuoteForm({ clients, lineItems }: NewQuoteFormProps) {
             rows={4}
             disabled={loading}
           />
+        </CardContent>
+      </Card>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Payment Link (Optional)</CardTitle>
+          <CardDescription>Add a link to Stripe, PayPal, or any payment page</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Input
+              type="url"
+              value={paymentLink}
+              onChange={(e) => setPaymentLink(e.target.value)}
+              placeholder="https://buy.stripe.com/..."
+              disabled={loading}
+            />
+            {paymentLink && paymentLink.startsWith('http') && (
+              <PaymentLinkPreview url={paymentLink} />
+            )}
+          </div>
         </CardContent>
       </Card>
 

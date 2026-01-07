@@ -42,6 +42,7 @@ model Quote {
   discountType String?   // "percentage" or "fixed"
   discount     Float     @default(0)
   notes        String?   @db.Text
+  paymentLink  String?   // Optional payment link (Stripe, PayPal, etc.)
   linkCopied   Int       @default(0) // Count of times link was copied
   emailSent    Int       @default(0) // Count of times email was sent
   deletedAt    DateTime? // Soft delete timestamp

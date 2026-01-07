@@ -19,6 +19,7 @@ const createQuoteSchema = z.object({
   discountType: z.enum(["percentage", "fixed", "none"]).optional(),
   discount: z.number().min(0).optional(),
   notes: z.string().optional(),
+  paymentLink: z.string().url("Invalid URL").optional().or(z.literal("")),
   items: z.array(quoteItemSchema).min(1, "At least one item is required"),
 });
 
@@ -40,6 +41,7 @@ export async function createQuote(formData: FormData) {
       discountType: (formData.get("discountType") as string) || "none",
       discount: parseFloat(formData.get("discount") as string) || 0,
       notes: formData.get("notes") as string || "",
+      paymentLink: formData.get("paymentLink") as string || "",
       items,
     };
 
@@ -54,6 +56,7 @@ export async function createQuote(formData: FormData) {
         discountType: validated.discountType === "none" ? null : validated.discountType,
         discount: validated.discount || 0,
         notes: validated.notes || null,
+        paymentLink: validated.paymentLink || null,
         items: {
           create: validated.items,
         },

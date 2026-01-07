@@ -7,6 +7,7 @@ import { ShareButton } from "@/components/share-button";
 import { Logo } from "@/components/logo";
 import { Metadata } from "next";
 import Image from "next/image";
+import { PaymentLinkPreview } from "@/components/payment-link-preview";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const quote = await getPublicQuote(params.id);
@@ -247,9 +248,17 @@ export default async function PublicQuotePage({ params }: { params: { id: string
 
           {/* Notes */}
           {quote.notes && (
-            <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-8">
+            <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-8 mb-6">
               <h2 className="text-xl font-semibold mb-4">Additional Notes</h2>
               <p className="text-gray-700 whitespace-pre-wrap">{quote.notes}</p>
+            </div>
+          )}
+
+          {/* Payment Link */}
+          {quote.paymentLink && (
+            <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-8 mb-6">
+              <h2 className="text-xl font-semibold mb-4">Payment</h2>
+              <PaymentLinkPreview url={quote.paymentLink} />
             </div>
           )}
 
