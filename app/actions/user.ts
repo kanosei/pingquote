@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
+import { UTApi } from "uploadthing/server";
 
 const updateProfileSchema = z.object({
   name: z.string().min(1, "Name is required").optional(),
@@ -25,6 +26,48 @@ export async function updateProfile(data: {
     }
 
     const validated = updateProfileSchema.parse(data);
+
+    // Get current user data to check if logo is being removed/changed
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { logoUrl: true },
+    });
+
+    // If logo is being removed (empty string or null) and user had a logo, delete from UploadThing
+    if (currentUser?.logoUrl && (!validated.logoUrl || validated.logoUrl === "")) {
+      try {
+        const utapi = new UTApi();
+        // Extract file key from URL (everything after /f/)
+        const fileKey = currentUser.logoUrl.split('/f/')[1];
+        if (fileKey) {
+          await utapi.deleteFiles(fileKey);
+          console.log("Deleted old logo from UploadThing:", fileKey);
+        }
+      } catch (error) {
+        console.error("Failed to delete old logo from UploadThing:", error);
+        // Continue anyway - we still want to update the database
+      }
+    }
+
+    // If logo is being changed to a new URL (not just removed), delete the old one
+    if (
+      currentUser?.logoUrl &&
+      validated.logoUrl &&
+      validated.logoUrl !== "" &&
+      validated.logoUrl !== currentUser.logoUrl
+    ) {
+      try {
+        const utapi = new UTApi();
+        const fileKey = currentUser.logoUrl.split('/f/')[1];
+        if (fileKey) {
+          await utapi.deleteFiles(fileKey);
+          console.log("Deleted old logo from UploadThing:", fileKey);
+        }
+      } catch (error) {
+        console.error("Failed to delete old logo from UploadThing:", error);
+        // Continue anyway
+      }
+    }
 
     await prisma.user.update({
       where: { id: session.user.id },
