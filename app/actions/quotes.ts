@@ -82,6 +82,7 @@ export async function getQuotes() {
     const quotes = await prisma.quote.findMany({
       where: {
         userId: session.user.id,
+        deletedAt: null, // Exclude soft-deleted quotes
       },
       include: {
         items: true,
@@ -115,6 +116,7 @@ export async function getUniqueClients() {
     const quotes = await prisma.quote.findMany({
       where: {
         userId: session.user.id,
+        deletedAt: null, // Exclude soft-deleted quotes
       },
       select: {
         clientName: true,
@@ -212,6 +214,7 @@ export async function getQuote(id: string) {
       where: {
         id,
         userId: session.user.id,
+        deletedAt: null, // Exclude soft-deleted quotes
       },
       include: {
         items: true,
@@ -239,6 +242,7 @@ export async function deleteQuote(id: string) {
       where: {
         id,
         userId: session.user.id,
+        deletedAt: null, // Only allow deleting non-deleted quotes
       },
     });
 
@@ -246,8 +250,12 @@ export async function deleteQuote(id: string) {
       return { error: "Quote not found" };
     }
 
-    await prisma.quote.delete({
+    // Soft delete: set deletedAt timestamp
+    await prisma.quote.update({
       where: { id },
+      data: {
+        deletedAt: new Date(),
+      },
     });
 
     revalidatePath("/dashboard");
@@ -271,6 +279,7 @@ export async function trackQuoteLinkCopy(quoteId: string) {
       where: {
         id: quoteId,
         userId: session.user.id,
+        deletedAt: null, // Only track for non-deleted quotes
       },
     });
 
@@ -307,6 +316,7 @@ export async function sendQuoteEmail(quoteId: string) {
       where: {
         id: quoteId,
         userId: session.user.id,
+        deletedAt: null, // Only send emails for non-deleted quotes
       },
       include: {
         items: true,

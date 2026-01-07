@@ -33,23 +33,25 @@ model User {
 
 // Quote model
 model Quote {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   userId       String
   clientName   String
-  clientEmail  String?  // Optional email address for the client
-  discountType String?  // "percentage" or "fixed"
-  discount     Float    @default(0)
-  notes        String?  @db.Text
-  linkCopied   Int      @default(0) // Count of times link was copied
-  emailSent    Int      @default(0) // Count of times email was sent
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  clientEmail  String?   // Optional email address for the client
+  discountType String?   // "percentage" or "fixed"
+  discount     Float     @default(0)
+  notes        String?   @db.Text
+  linkCopied   Int       @default(0) // Count of times link was copied
+  emailSent    Int       @default(0) // Count of times email was sent
+  deletedAt    DateTime? // Soft delete timestamp
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   user  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   items QuoteItem[]
   views QuoteView[]
 
   @@index([userId])
+  @@index([deletedAt])
   @@map("quotes")
 }
 

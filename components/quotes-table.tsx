@@ -16,10 +16,18 @@ import {
 import { formatCurrency, formatRelativeTime } from "@/lib/utils";
 import { getQuoteStatus, getStatusLabel, getStatusIcon, getStatusColor } from "@/lib/quote-status";
 import { calculateQuoteTotals } from "@/lib/quote-calculations";
-import { Eye, ExternalLink, Mail, Loader2, MoreVertical, Copy, Check, Share2 } from "lucide-react";
-import { sendQuoteEmail, trackQuoteLinkCopy } from "@/app/actions/quotes";
+import { Eye, ExternalLink, Mail, Loader2, MoreVertical, Copy, Check, Share2, Trash2, AlertTriangle } from "lucide-react";
+import { sendQuoteEmail, trackQuoteLinkCopy, deleteQuote } from "@/app/actions/quotes";
 import { QuoteViewHistoryDialog } from "@/components/quote-view-history-dialog";
 import { QuoteViewDialog } from "@/components/quote-view-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type QuoteWithRelations = Quote & {
   items: QuoteItem[];
@@ -35,10 +43,13 @@ export function QuotesTable({
 }) {
   const router = useRouter();
   const [sendingEmail, setSendingEmail] = useState<string | null>(null);
+  const [deletingQuote, setDeletingQuote] = useState<string | null>(null);
   const [viewDialogQuote, setViewDialogQuote] = useState<QuoteWithRelations | null>(null);
   const [viewHistoryQuote, setViewHistoryQuote] = useState<QuoteWithRelations | null>(null);
   const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [copiedQuoteId, setCopiedQuoteId] = useState<string | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [quoteToDelete, setQuoteToDelete] = useState<{ id: string; clientName: string } | null>(null);
 
   const handleSendEmail = async (quoteId: string) => {
     setSendingEmail(quoteId);
@@ -110,6 +121,33 @@ export function QuotesTable({
       // Fallback for browsers that don't support Web Share API
       handleCopyLink(quote.id);
     }
+  };
+
+  const handleDeleteClick = (quoteId: string, clientName: string) => {
+    setQuoteToDelete({ id: quoteId, clientName });
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!quoteToDelete) return;
+
+    setDeletingQuote(quoteToDelete.id);
+    setDeleteConfirmOpen(false);
+
+    const result = await deleteQuote(quoteToDelete.id);
+    setDeletingQuote(null);
+    setQuoteToDelete(null);
+
+    if (result.error) {
+      setAlert({ type: "error", message: result.error });
+    } else {
+      setAlert({ type: "success", message: "Quote deleted successfully" });
+      // Refresh the page data
+      router.refresh();
+    }
+
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => setAlert(null), 5000);
   };
 
   if (quotes.length === 0) {
@@ -225,9 +263,9 @@ export function QuotesTable({
                         variant="ghost"
                         size="sm"
                         className="h-8 w-8 p-0"
-                        disabled={sendingEmail === quote.id}
+                        disabled={sendingEmail === quote.id || deletingQuote === quote.id}
                       >
-                        {sendingEmail === quote.id ? (
+                        {sendingEmail === quote.id || deletingQuote === quote.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
                           <MoreVertical className="h-4 w-4" />
@@ -273,6 +311,15 @@ export function QuotesTable({
                           {sendingEmail === quote.id ? "Sending..." : "Send Email"}
                         </DropdownMenuItem>
                       )}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteClick(quote.id, quote.clientName)}
+                        disabled={deletingQuote === quote.id}
+                        className="text-red-600 focus:text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        {deletingQuote === quote.id ? "Deleting..." : "Delete"}
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -297,6 +344,44 @@ export function QuotesTable({
           onOpenChange={(open) => !open && setViewHistoryQuote(null)}
         />
       )}
+
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-600" />
+              Delete Quote
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete the quote for{" "}
+              <strong>{quoteToDelete?.clientName}</strong>? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteConfirmOpen(false)}
+              disabled={deletingQuote !== null}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={deletingQuote !== null}
+            >
+              {deletingQuote ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete Quote"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
