@@ -80,6 +80,8 @@ export async function updateProfile(data: {
 
     revalidatePath("/settings");
     revalidatePath("/dashboard");
+    revalidatePath("/", "layout");
+    revalidatePath("/q/[id]", "layout");
     return { success: true };
   } catch (error) {
     if (error instanceof z.ZodError) {
