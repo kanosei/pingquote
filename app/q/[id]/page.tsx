@@ -1,5 +1,3 @@
-"use client";
-
 import { notFound } from "next/navigation";
 import { getPublicQuote } from "@/app/actions/public";
 import { formatCurrency, formatDate, formatRelativeTime } from "@/lib/utils";
@@ -10,25 +8,67 @@ import { Logo } from "@/components/logo";
 import { Metadata } from "next";
 import Image from "next/image";
 import { PaymentLinkPreview } from "@/components/payment-link-preview";
-import { useEffect, useState } from "react";
-import { Quote } from "@prisma/client";
 
-export default function PublicQuotePage({ params }: { params: { id: string } }) {
-  const [quote, setQuote] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const quote = await getPublicQuote(params.id);
 
-  useEffect(() => {
-    const fetchQuote = async () => {
-      const fetchedQuote = await getPublicQuote(params.id);
-      setQuote(fetchedQuote);
-      setLoading(false);
+  if (!quote) {
+    return {
+      title: "Quote Not Found",
     };
-    fetchQuote();
-  }, [params.id]);
-
-  if (loading) {
-    return <div>Loading...</div>;
   }
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const quoteUrl = `${baseUrl}/q/${params.id}`;
+
+  // Build OG image URL with company info
+  const ogParams = new URLSearchParams();
+  if (quote.user.logoUrl) {
+    ogParams.set('logo', quote.user.logoUrl);
+  }
+  if (quote.user.companyName) {
+    ogParams.set('company', quote.user.companyName);
+  }
+  const ogImageUrl = `${baseUrl}/api/og?${ogParams.toString()}`;
+
+  const { total } = calculateQuoteTotals(quote.items, quote.discountType, quote.discount);
+
+  const senderName = quote.user.companyName || quote.user.name || "PingQuote";
+  const itemCount = quote.items.length;
+  const itemsText = itemCount === 1 ? "item" : "items";
+
+  const title = `${senderName} sent you a quote to review`;
+  const description = `View your personalized quote with ${itemCount} ${itemsText} totaling ${formatCurrency(total, quote.currency)}. Click to see the full details and breakdown.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: quoteUrl,
+      siteName: "PingQuote",
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: "PingQuote - Professional Quote Management",
+        },
+      ],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImageUrl],
+    },
+  };
+}
+
+export default async function PublicQuotePage({ params }: { params: { id: string } }) {
+  const quote = await getPublicQuote(params.id);
 
   if (!quote) {
     notFound();
