@@ -39,12 +39,14 @@ model Quote {
   userId       String
   clientName   String
   clientEmail  String?   // Optional email address for the client
+  currency     String    @default("USD") // Currency code (USD, GBP, EUR, etc.)
   discountType String?   // "percentage" or "fixed"
   discount     Float     @default(0)
   notes        String?   @db.Text
   paymentLink  String?   // Optional payment link (Stripe, PayPal, etc.)
   linkCopied   Int       @default(0) // Count of times link was copied
   emailSent    Int       @default(0) // Count of times email was sent
+  editedAt     DateTime? // Timestamp of last edit (null if never edited)
   deletedAt    DateTime? // Soft delete timestamp
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt

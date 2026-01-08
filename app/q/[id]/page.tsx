@@ -1,6 +1,8 @@
+"use client";
+
 import { notFound } from "next/navigation";
 import { getPublicQuote } from "@/app/actions/public";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, formatRelativeTime } from "@/lib/utils";
 import { calculateQuoteTotals } from "@/lib/quote-calculations";
 import { QuoteViewTracker } from "@/components/quote-view-tracker";
 import { ShareButton } from "@/components/share-button";
@@ -8,67 +10,25 @@ import { Logo } from "@/components/logo";
 import { Metadata } from "next";
 import Image from "next/image";
 import { PaymentLinkPreview } from "@/components/payment-link-preview";
+import { useEffect, useState } from "react";
+import { Quote } from "@prisma/client";
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const quote = await getPublicQuote(params.id);
+export default function PublicQuotePage({ params }: { params: { id: string } }) {
+  const [quote, setQuote] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!quote) {
-    return {
-      title: "Quote Not Found",
+  useEffect(() => {
+    const fetchQuote = async () => {
+      const fetchedQuote = await getPublicQuote(params.id);
+      setQuote(fetchedQuote);
+      setLoading(false);
     };
+    fetchQuote();
+  }, [params.id]);
+
+  if (loading) {
+    return <div>Loading...</div>;
   }
-
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const quoteUrl = `${baseUrl}/q/${params.id}`;
-
-  // Build OG image URL with company info
-  const ogParams = new URLSearchParams();
-  if (quote.user.logoUrl) {
-    ogParams.set('logo', quote.user.logoUrl);
-  }
-  if (quote.user.companyName) {
-    ogParams.set('company', quote.user.companyName);
-  }
-  const ogImageUrl = `${baseUrl}/api/og?${ogParams.toString()}`;
-
-  const { total } = calculateQuoteTotals(quote.items, quote.discountType, quote.discount);
-
-  const senderName = quote.user.companyName || quote.user.name || "PingQuote";
-  const itemCount = quote.items.length;
-  const itemsText = itemCount === 1 ? "item" : "items";
-
-  const title = `${senderName} sent you a quote to review`;
-  const description = `View your personalized quote with ${itemCount} ${itemsText} totaling ${formatCurrency(total)}. Click to see the full details and breakdown.`;
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      url: quoteUrl,
-      siteName: "PingQuote",
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: "PingQuote - Professional Quote Management",
-        },
-      ],
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [ogImageUrl],
-    },
-  };
-}
-
-export default async function PublicQuotePage({ params }: { params: { id: string } }) {
-  const quote = await getPublicQuote(params.id);
 
   if (!quote) {
     notFound();
@@ -134,6 +94,11 @@ export default async function PublicQuotePage({ params }: { params: { id: string
                 <div className="hidden sm:block text-right">
                   <p className="text-sm text-gray-600">Date</p>
                   <p className="font-medium">{formatDate(quote.createdAt)}</p>
+                  {quote.editedAt && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Edited {formatRelativeTime(quote.editedAt)}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -141,6 +106,11 @@ export default async function PublicQuotePage({ params }: { params: { id: string
             <div className="sm:hidden mb-6 text-right">
               <p className="text-sm text-gray-600">Date</p>
               <p className="font-medium">{formatDate(quote.createdAt)}</p>
+              {quote.editedAt && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Edited {formatRelativeTime(quote.editedAt)}
+                </p>
+              )}
             </div>
 
             <div className="border-t pt-6">
@@ -179,13 +149,13 @@ export default async function PublicQuotePage({ params }: { params: { id: string
                   </tr>
                 </thead>
                 <tbody>
-                  {quote.items.map((item) => (
+                  {quote.items.map((item: any) => (
                     <tr key={item.id} className="border-b last:border-0">
                       <td className="py-4">{item.description}</td>
                       <td className="py-4 text-right">{item.quantity}</td>
-                      <td className="py-4 text-right">{formatCurrency(item.price)}</td>
+                      <td className="py-4 text-right">{formatCurrency(item.price, quote.currency)}</td>
                       <td className="py-4 text-right font-medium">
-                        {formatCurrency(item.quantity * item.price)}
+                        {formatCurrency(item.quantity * item.price, quote.currency)}
                       </td>
                     </tr>
                   ))}
@@ -195,7 +165,7 @@ export default async function PublicQuotePage({ params }: { params: { id: string
 
             {/* Mobile Card View */}
             <div className="sm:hidden space-y-4">
-              {quote.items.map((item) => (
+              {quote.items.map((item: any) => (
                 <div key={item.id} className="border rounded-lg p-4 bg-gray-50">
                   <div className="font-medium text-gray-900 mb-2">{item.description}</div>
                   <div className="grid grid-cols-2 gap-2 text-sm">
@@ -205,13 +175,13 @@ export default async function PublicQuotePage({ params }: { params: { id: string
                     </div>
                     <div className="text-right">
                       <span className="text-gray-600">Price:</span>
-                      <span className="ml-2 font-medium">{formatCurrency(item.price)}</span>
+                      <span className="ml-2 font-medium">{formatCurrency(item.price, quote.currency)}</span>
                     </div>
                   </div>
                   <div className="mt-2 pt-2 border-t flex justify-between items-center">
                     <span className="text-gray-600 text-sm">Total:</span>
                     <span className="font-bold text-lg">
-                      {formatCurrency(item.quantity * item.price)}
+                      {formatCurrency(item.quantity * item.price, quote.currency)}
                     </span>
                   </div>
                 </div>
@@ -223,7 +193,7 @@ export default async function PublicQuotePage({ params }: { params: { id: string
               <div className="space-y-2 max-w-xs ml-auto">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">{formatCurrency(subtotal)}</span>
+                  <span className="font-medium">{formatCurrency(subtotal, quote.currency)}</span>
                 </div>
 
                 {discountAmount > 0 && (
@@ -233,14 +203,14 @@ export default async function PublicQuotePage({ params }: { params: { id: string
                       {quote.discountType === "percentage" && ` (${quote.discount}%)`}
                     </span>
                     <span className="font-medium text-red-600">
-                      -{formatCurrency(discountAmount)}
+                      -{formatCurrency(discountAmount, quote.currency)}
                     </span>
                   </div>
                 )}
 
                 <div className="flex justify-between pt-2 border-t text-lg">
                   <span className="font-semibold">Total</span>
-                  <span className="font-bold">{formatCurrency(total)}</span>
+                  <span className="font-bold">{formatCurrency(total, quote.currency)}</span>
                 </div>
               </div>
             </div>

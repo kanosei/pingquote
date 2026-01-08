@@ -8,74 +8,54 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AutocompleteInput } from "@/components/ui/autocomplete-input";
-import { createQuote } from "@/app/actions/quotes";
+import { updateQuote } from "@/app/actions/quotes";
 import { Plus, Trash2 } from "lucide-react";
-import { formatCurrency, getLocaleCurrency, CURRENCIES } from "@/lib/utils";
+import { formatCurrency, CURRENCIES, getLocaleCurrency } from "@/lib/utils";
 import { PaymentLinkPreview } from "@/components/payment-link-preview";
+import type { Quote, QuoteItem } from "@prisma/client";
 
-interface QuoteItem {
+interface QuoteItemState {
   description: string;
   quantity: number;
   price: string;
 }
 
-interface Client {
-  name: string;
-  email: string | null;
+type QuoteWithItems = Quote & {
+  items: QuoteItem[];
+};
+
+interface EditQuoteFormProps {
+  quote: QuoteWithItems;
 }
 
-interface LineItem {
-  description: string;
-  price: number;
-  quantity: number;
-}
-
-interface NewQuoteFormProps {
-  clients: Client[];
-  lineItems: LineItem[];
-}
-
-export function NewQuoteForm({ clients, lineItems }: NewQuoteFormProps) {
+export function EditQuoteForm({ quote }: EditQuoteFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Form state
-  const [clientName, setClientName] = useState("");
-  const [clientEmail, setClientEmail] = useState("");
-  const [currency, setCurrency] = useState(""); // Default to "", will update with locale
-  const [discountType, setDiscountType] = useState<"none" | "percentage" | "fixed">("none");
-  const [discount, setDiscount] = useState(0);
-  const [notes, setNotes] = useState("");
-  const [paymentLink, setPaymentLink] = useState("");
-  const [items, setItems] = useState<QuoteItem[]>([
-    { description: "", quantity: 1, price: "" },
-  ]);
+  // Initialize form state with existing quote data
+  const [clientName, setClientName] = useState(quote.clientName);
+  const [clientEmail, setClientEmail] = useState(quote.clientEmail || "");
+  const [currency, setCurrency] = useState(quote.currency || "");
+  const [discountType, setDiscountType] = useState<"none" | "percentage" | "fixed">(
+    quote.discountType ? (quote.discountType as "percentage" | "fixed") : "none"
+  );
+  const [discount, setDiscount] = useState(quote.discount);
+  const [notes, setNotes] = useState(quote.notes || "");
+  const [paymentLink, setPaymentLink] = useState(quote.paymentLink || "");
+  const [items, setItems] = useState<QuoteItemState[]>(
+    quote.items.map(item => ({
+      description: item.description,
+      quantity: item.quantity,
+      price: item.price.toString(),
+    }))
+  );
 
-  // Detect locale currency on mount
   useEffect(() => {
-    const localeCurrency = getLocaleCurrency();
-    console.log("Detected locale currency:", localeCurrency);
-    if (localeCurrency) {
-      setCurrency(localeCurrency);
+    if (!currency) {
+      setCurrency(getLocaleCurrency());
     }
-  }, []);
-
-  useEffect(() => {
-    console.log("Current currency state:", currency);
   }, [currency]);
-
-  // Prepare autocomplete options
-  const clientOptions = clients.map((client) => ({
-    value: client.name,
-    label: client.email ? `${client.name} (${client.email})` : client.name,
-  }));
-
-  const lineItemOptions = lineItems.map((item) => ({
-    value: item.description,
-    label: `${item.description} - ${formatCurrency(item.price, currency)}`,
-  }));
 
   // Calculate totals
   const subtotal = items.reduce((sum, item) => sum + item.quantity * (parseFloat(item.price) || 0), 0);
@@ -98,41 +78,10 @@ export function NewQuoteForm({ clients, lineItems }: NewQuoteFormProps) {
     setItems(items.filter((_, i) => i !== index));
   }
 
-  function updateItem(index: number, field: keyof QuoteItem, value: string | number) {
+  function updateItem(index: number, field: keyof QuoteItemState, value: string | number) {
     const newItems = [...items];
     newItems[index] = { ...newItems[index], [field]: value };
     setItems(newItems);
-  }
-
-  // Handle client selection from autocomplete
-  const handleClientSelect = (option: { value: string; label: string }) => {
-    const selectedClient = clients.find(
-      (c) => c.name.toLowerCase() === option.value.toLowerCase()
-    );
-
-    if (selectedClient) {
-      setClientName(selectedClient.name);
-      if (selectedClient.email) {
-        setClientEmail(selectedClient.email);
-      }
-    }
-  };
-
-  // Handle line item selection from autocomplete
-  const handleLineItemSelect = (index: number, option: { value: string; label: string }) => {
-    const selectedItem = lineItems.find(
-      (item) => item.description.toLowerCase() === option.value.toLowerCase()
-    );
-
-    if (selectedItem) {
-      const newItems = [...items];
-      newItems[index] = {
-        description: selectedItem.description,
-        quantity: selectedItem.quantity,
-        price: selectedItem.price.toString(),
-      };
-      setItems(newItems);
-    }
   };
 
   async function handleSubmit(e: React.FormEvent) {
@@ -147,11 +96,12 @@ export function NewQuoteForm({ clients, lineItems }: NewQuoteFormProps) {
       return;
     }
 
-          const validItems = items.filter(item => item.description.trim() && parseFloat(item.price) > 0).map(item => ({
-            description: item.description,
-            quantity: Number(item.quantity),
-            price: parseFloat(item.price),
-          }));    if (validItems.length === 0) {
+    const validItems = items.filter(item => item.description.trim() && parseFloat(item.price) > 0).map(item => ({
+      description: item.description,
+      quantity: Number(item.quantity),
+      price: parseFloat(item.price),
+    }));
+    if (validItems.length === 0) {
       setError("At least one valid line item is required");
       setLoading(false);
       return;
@@ -168,7 +118,7 @@ export function NewQuoteForm({ clients, lineItems }: NewQuoteFormProps) {
       formData.append("paymentLink", paymentLink);
       formData.append("items", JSON.stringify(validItems));
 
-      const result = await createQuote(formData);
+      const result = await updateQuote(quote.id, formData);
 
       if (result.error) {
         setError(result.error);
@@ -179,7 +129,7 @@ export function NewQuoteForm({ clients, lineItems }: NewQuoteFormProps) {
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
-      setError("Failed to create quote. Please try again.");
+      setError("Failed to update quote. Please try again.");
       setLoading(false);
     }
   }
@@ -194,21 +144,14 @@ export function NewQuoteForm({ clients, lineItems }: NewQuoteFormProps) {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="clientName">Client Name</Label>
-            <AutocompleteInput
+            <Input
               id="clientName"
-              options={clientOptions}
               value={clientName}
-              onChange={setClientName}
-              onSelect={handleClientSelect}
-              placeholder="Start typing client name..."
+              onChange={(e) => setClientName(e.target.value)}
+              placeholder="Client name"
               required
               disabled={loading}
             />
-            {clientOptions.length > 0 && (
-              <p className="text-xs text-gray-500">
-                Start typing to see suggestions from previous clients
-              </p>
-            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="clientEmail">Client Email (Optional)</Label>
@@ -226,7 +169,7 @@ export function NewQuoteForm({ clients, lineItems }: NewQuoteFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="currency">Currency</Label>
-            <Select key={currency} value={currency} onValueChange={setCurrency} disabled={loading}>
+            <Select value={currency} onValueChange={setCurrency} disabled={loading}>
               <SelectTrigger id="currency">
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
@@ -253,13 +196,11 @@ export function NewQuoteForm({ clients, lineItems }: NewQuoteFormProps) {
               {/* Description - Full width */}
               <div>
                 <Label htmlFor={`description-${index}`}>Description</Label>
-                <AutocompleteInput
+                <Input
                   id={`description-${index}`}
-                  options={lineItemOptions}
                   value={item.description}
-                  onChange={(value) => updateItem(index, "description", value)}
-                  onSelect={(option) => handleLineItemSelect(index, option)}
-                  placeholder="Start typing service/product..."
+                  onChange={(e) => updateItem(index, "description", e.target.value)}
+                  placeholder="Service or product description"
                   disabled={loading}
                 />
               </div>

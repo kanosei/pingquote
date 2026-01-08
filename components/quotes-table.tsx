@@ -16,7 +16,7 @@ import {
 import { formatCurrency, formatRelativeTime } from "@/lib/utils";
 import { getQuoteStatus, getStatusLabel, getStatusIcon, getStatusColor } from "@/lib/quote-status";
 import { calculateQuoteTotals } from "@/lib/quote-calculations";
-import { Eye, ExternalLink, Mail, Loader2, MoreVertical, Copy, Check, Share2, Trash2, AlertTriangle } from "lucide-react";
+import { Eye, ExternalLink, Mail, Loader2, MoreVertical, Copy, Check, Share2, Trash2, AlertTriangle, Edit } from "lucide-react";
 import { sendQuoteEmail, trackQuoteLinkCopy, deleteQuote } from "@/app/actions/quotes";
 import { QuoteViewHistoryDialog } from "@/components/quote-view-history-dialog";
 import { QuoteViewDialog } from "@/components/quote-view-dialog";
@@ -236,7 +236,7 @@ export function QuotesTable({
                     </span>
                   </div>
                 </TableCell>
-                <TableCell className="font-medium">{formatCurrency(total)}</TableCell>
+                <TableCell className="font-medium">{formatCurrency(total, quote.currency)}</TableCell>
                 <TableCell className="hidden md:table-cell">
                   <span className={`inline-flex items-center gap-1.5 ${getStatusColor(status)}`}>
                     <span>{getStatusIcon(status)}</span>
@@ -274,6 +274,12 @@ export function QuotesTable({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuItem asChild>
+                        <Link href={`/quotes/${quote.id}/edit`} className="flex items-center">
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit Quote
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setViewDialogQuote(quote)}>
                         <Eye className="h-4 w-4 mr-2" />
                         Preview

@@ -16,6 +16,7 @@ const quoteItemSchema = z.object({
 const createQuoteSchema = z.object({
   clientName: z.string().min(1, "Client name is required"),
   clientEmail: z.string().email("Invalid email address").optional().or(z.literal("")),
+  currency: z.string().length(3, "Invalid currency code").default("USD"),
   discountType: z.enum(["percentage", "fixed", "none"]).optional(),
   discount: z.number().min(0).optional(),
   notes: z.string().optional(),
@@ -38,6 +39,7 @@ export async function createQuote(formData: FormData) {
     const data = {
       clientName: formData.get("clientName") as string,
       clientEmail: formData.get("clientEmail") as string || "",
+      currency: formData.get("currency") as string || "USD",
       discountType: (formData.get("discountType") as string) || "none",
       discount: parseFloat(formData.get("discount") as string) || 0,
       notes: formData.get("notes") as string || "",
@@ -53,6 +55,7 @@ export async function createQuote(formData: FormData) {
         userId: session.user.id,
         clientName: validated.clientName,
         clientEmail: validated.clientEmail || null,
+        currency: validated.currency,
         discountType: validated.discountType === "none" ? null : validated.discountType,
         discount: validated.discount || 0,
         notes: validated.notes || null,
@@ -390,5 +393,84 @@ export async function sendQuoteEmail(quoteId: string) {
   } catch (error) {
     console.error("Send quote email error:", error);
     return { error: "Failed to send email. Please check your Resend API key." };
+  }
+}
+
+export async function updateQuote(id: string, formData: FormData) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return { error: "Unauthorized" };
+    }
+
+    // Verify ownership
+    const existingQuote = await prisma.quote.findFirst({
+      where: {
+        id,
+        userId: session.user.id,
+        deletedAt: null,
+      },
+      include: {
+        items: true,
+      },
+    });
+
+    if (!existingQuote) {
+      return { error: "Quote not found" };
+    }
+
+    // Parse the items JSON from formData
+    const itemsJson = formData.get("items") as string;
+    const items = JSON.parse(itemsJson);
+
+    const data = {
+      clientName: formData.get("clientName") as string,
+      clientEmail: formData.get("clientEmail") as string || "",
+      currency: formData.get("currency") as string || "USD",
+      discountType: (formData.get("discountType") as string) || "none",
+      discount: parseFloat(formData.get("discount") as string) || 0,
+      notes: formData.get("notes") as string || "",
+      paymentLink: formData.get("paymentLink") as string || "",
+      items,
+    };
+
+    const validated = createQuoteSchema.parse(data);
+
+    // Delete existing items and create new ones in a transaction
+    await prisma.$transaction(async (tx) => {
+      // Delete old items
+      await tx.quoteItem.deleteMany({
+        where: { quoteId: id },
+      });
+
+      // Update quote with editedAt timestamp
+      await tx.quote.update({
+        where: { id },
+        data: {
+          clientName: validated.clientName,
+          clientEmail: validated.clientEmail || null,
+          currency: validated.currency,
+          discountType: validated.discountType === "none" ? null : validated.discountType,
+          discount: validated.discount || 0,
+          notes: validated.notes || null,
+          paymentLink: validated.paymentLink || null,
+          editedAt: new Date(), // Mark as edited
+          items: {
+            create: validated.items,
+          },
+        },
+      });
+    });
+
+    revalidatePath("/dashboard");
+    revalidatePath(`/q/${id}`);
+    return { success: true, quoteId: id };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { error: error.errors[0].message };
+    }
+    console.error("Update quote error:", error);
+    return { error: "Failed to update quote. Please try again." };
   }
 }

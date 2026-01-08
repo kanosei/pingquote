@@ -19,49 +19,58 @@ export interface QuoteStats {
   emailedCount: number;
 }
 
-export function calculateQuoteStats(quotes: QuoteWithRelations[]): QuoteStats {
-  let totalValue = 0;
-  let viewedQuotes = 0;
-  let hotQuotes = 0;
-  let warmQuotes = 0;
-  let coldQuotes = 0;
-  let copiedCount = 0;
-  let emailedCount = 0;
+export type QuoteStatsByCurrency = Record<string, QuoteStats>;
+
+export function calculateQuoteStats(quotes: QuoteWithRelations[]): QuoteStatsByCurrency {
+  const statsByCurrency: QuoteStatsByCurrency = {};
 
   quotes.forEach((quote) => {
+    const currency = quote.currency || "USD";
+    if (!statsByCurrency[currency]) {
+      statsByCurrency[currency] = {
+        totalQuotes: 0,
+        totalValue: 0,
+        viewedQuotes: 0,
+        hotQuotes: 0,
+        warmQuotes: 0,
+        coldQuotes: 0,
+        avgQuoteValue: 0,
+        copiedCount: 0,
+        emailedCount: 0,
+      };
+    }
+
+    const stats = statsByCurrency[currency];
+    stats.totalQuotes++;
+
     // Calculate total value
     const { total } = calculateQuoteTotals(
       quote.items,
       quote.discountType,
       quote.discount
     );
-    totalValue += total;
+    stats.totalValue += total;
 
     // Count viewed quotes
     if (quote.views.length > 0) {
-      viewedQuotes++;
+      stats.viewedQuotes++;
     }
 
     // Count by status
     const status = getQuoteStatus(quote.views);
-    if (status === "hot") hotQuotes++;
-    else if (status === "warm") warmQuotes++;
-    else if (status === "cold") coldQuotes++;
+    if (status === "hot") stats.hotQuotes++;
+    else if (status === "warm") stats.warmQuotes++;
+    else if (status === "cold") stats.coldQuotes++;
 
     // Sum up engagement metrics
-    copiedCount += quote.linkCopied || 0;
-    emailedCount += quote.emailSent || 0;
+    stats.copiedCount += quote.linkCopied || 0;
+    stats.emailedCount += quote.emailSent || 0;
   });
 
-  return {
-    totalQuotes: quotes.length,
-    totalValue,
-    viewedQuotes,
-    hotQuotes,
-    warmQuotes,
-    coldQuotes,
-    avgQuoteValue: quotes.length > 0 ? totalValue / quotes.length : 0,
-    copiedCount,
-    emailedCount,
-  };
+  for (const currency in statsByCurrency) {
+    const stats = statsByCurrency[currency];
+    stats.avgQuoteValue = stats.totalQuotes > 0 ? stats.totalValue / stats.totalQuotes : 0;
+  }
+
+  return statsByCurrency;
 }

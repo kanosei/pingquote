@@ -80,9 +80,9 @@ export function QuoteViewDialog({ quote, open, onOpenChange }: QuoteViewDialogPr
                   <tr key={item.id} className="border-b last:border-0">
                     <td className="py-3">{item.description}</td>
                     <td className="py-3 text-right">{item.quantity}</td>
-                    <td className="py-3 text-right">{formatCurrency(item.price)}</td>
+                    <td className="py-3 text-right">{formatCurrency(item.price, quote.currency)}</td>
                     <td className="py-3 text-right font-medium">
-                      {formatCurrency(item.quantity * item.price)}
+                      {formatCurrency(item.quantity * item.price, quote.currency)}
                     </td>
                   </tr>
                 ))}
@@ -94,7 +94,7 @@ export function QuoteViewDialog({ quote, open, onOpenChange }: QuoteViewDialogPr
               <div className="space-y-2 max-w-xs ml-auto">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">{formatCurrency(subtotal)}</span>
+                  <span className="font-medium">{formatCurrency(subtotal, quote.currency)}</span>
                 </div>
 
                 {discountAmount > 0 && (
@@ -104,14 +104,14 @@ export function QuoteViewDialog({ quote, open, onOpenChange }: QuoteViewDialogPr
                       {quote.discountType === "percentage" && ` (${quote.discount}%)`}
                     </span>
                     <span className="font-medium text-red-600">
-                      -{formatCurrency(discountAmount)}
+                      -{formatCurrency(discountAmount, quote.currency)}
                     </span>
                   </div>
                 )}
 
                 <div className="flex justify-between pt-2 border-t text-lg">
                   <span className="font-semibold">Total</span>
-                  <span className="font-bold">{formatCurrency(total)}</span>
+                  <span className="font-bold">{formatCurrency(total, quote.currency)}</span>
                 </div>
               </div>
             </div>
