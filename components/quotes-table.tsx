@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Quote, QuoteItem, QuoteView } from "@prisma/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -13,10 +13,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { formatCurrency, formatRelativeTime } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import { getQuoteStatus, getStatusLabel, getStatusIcon, getStatusColor } from "@/lib/quote-status";
 import { calculateQuoteTotals } from "@/lib/quote-calculations";
-import { Eye, ExternalLink, Mail, Loader2, MoreVertical, Copy, Check, Share2, Trash2, AlertTriangle, Edit } from "lucide-react";
+import { Eye, ExternalLink, Mail, Loader2, MoreVertical, Copy, Check, Share2, Trash2, AlertTriangle, Edit, ChevronDown, ChevronUp, ChevronsUpDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { sendQuoteEmail, trackQuoteLinkCopy, deleteQuote } from "@/app/actions/quotes";
 import { QuoteViewHistoryDialog } from "@/components/quote-view-history-dialog";
 import { QuoteViewDialog } from "@/components/quote-view-dialog";
@@ -34,6 +34,9 @@ type QuoteWithRelations = Quote & {
   views: QuoteView[];
 };
 
+type SortField = "client" | "value" | "status" | "views";
+type SortDirection = "asc" | "desc";
+
 export function QuotesTable({
   quotes,
   senderName,
@@ -50,6 +53,10 @@ export function QuotesTable({
   const [copiedQuoteId, setCopiedQuoteId] = useState<string | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [quoteToDelete, setQuoteToDelete] = useState<{ id: string; clientName: string } | null>(null);
+  const [sortField, setSortField] = useState<SortField>("client");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const handleSendEmail = async (quoteId: string) => {
     setSendingEmail(quoteId);
@@ -150,6 +157,66 @@ export function QuotesTable({
     setTimeout(() => setAlert(null), 5000);
   };
 
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      // Toggle direction if clicking the same field
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      // New field, default to ascending
+      setSortField(field);
+      setSortDirection("asc");
+    }
+    // Reset to first page when sorting changes
+    setCurrentPage(1);
+  };
+
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) {
+      return <ChevronsUpDown className="h-4 w-4 ml-1 inline-block text-gray-400" />;
+    }
+    return sortDirection === "asc"
+      ? <ChevronUp className="h-4 w-4 ml-1 inline-block" />
+      : <ChevronDown className="h-4 w-4 ml-1 inline-block" />;
+  };
+
+  // Sort and paginate quotes
+  const sortedAndPaginatedQuotes = useMemo(() => {
+    // First, sort the quotes
+    const sorted = [...quotes].sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortField) {
+        case "client":
+          comparison = a.clientName.localeCompare(b.clientName);
+          break;
+        case "value":
+          const totalA = calculateQuoteTotals(a.items, a.discountType, a.discount).total;
+          const totalB = calculateQuoteTotals(b.items, b.discountType, b.discount).total;
+          comparison = totalA - totalB;
+          break;
+        case "status":
+          const statusA = getQuoteStatus(a.views);
+          const statusB = getQuoteStatus(b.views);
+          comparison = statusA.localeCompare(statusB);
+          break;
+        case "views":
+          comparison = a.views.length - b.views.length;
+          break;
+      }
+
+      return sortDirection === "asc" ? comparison : -comparison;
+    });
+
+    // Then paginate
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return sorted.slice(startIndex, endIndex);
+  }, [quotes, sortField, sortDirection, currentPage, itemsPerPage]);
+
+  const totalPages = Math.ceil(quotes.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage + 1;
+  const endIndex = Math.min(currentPage * itemsPerPage, quotes.length);
+
   if (quotes.length === 0) {
     return (
       <div className="text-center py-12">
@@ -184,22 +251,53 @@ export function QuotesTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Client</TableHead>
-            <TableHead>Value</TableHead>
-            <TableHead className="hidden md:table-cell">Status</TableHead>
-            <TableHead className="hidden lg:table-cell">Views</TableHead>
+            <TableHead>
+              <button
+                onClick={() => handleSort("client")}
+                className="flex items-center hover:text-gray-900 font-medium"
+              >
+                Client
+                {getSortIcon("client")}
+              </button>
+            </TableHead>
+            <TableHead>
+              <button
+                onClick={() => handleSort("value")}
+                className="flex items-center hover:text-gray-900 font-medium"
+              >
+                Value
+                {getSortIcon("value")}
+              </button>
+            </TableHead>
+            <TableHead className="hidden md:table-cell">
+              <button
+                onClick={() => handleSort("status")}
+                className="flex items-center hover:text-gray-900 font-medium"
+              >
+                Status
+                {getSortIcon("status")}
+              </button>
+            </TableHead>
+            <TableHead className="hidden lg:table-cell">
+              <button
+                onClick={() => handleSort("views")}
+                className="flex items-center hover:text-gray-900 font-medium"
+              >
+                Views
+                {getSortIcon("views")}
+              </button>
+            </TableHead>
             <TableHead className="text-right w-[50px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {quotes.map((quote) => {
+          {sortedAndPaginatedQuotes.map((quote) => {
             const status = getQuoteStatus(quote.views);
             const { total } = calculateQuoteTotals(
               quote.items,
               quote.discountType,
               quote.discount
             );
-            const lastView = quote.views[0];
             const viewCount = quote.views.length;
 
             return (
@@ -334,6 +432,70 @@ export function QuotesTable({
           })}
         </TableBody>
       </Table>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-2 py-4">
+          <div className="text-sm text-gray-700">
+            Showing <span className="font-medium">{startIndex}</span> to{" "}
+            <span className="font-medium">{endIndex}</span> of{" "}
+            <span className="font-medium">{quotes.length}</span> quotes
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Previous
+            </Button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                // Show first page, last page, current page, and pages around current
+                const showPage =
+                  page === 1 ||
+                  page === totalPages ||
+                  (page >= currentPage - 1 && page <= currentPage + 1);
+
+                if (!showPage) {
+                  // Show ellipsis
+                  if (page === currentPage - 2 || page === currentPage + 2) {
+                    return (
+                      <span key={page} className="px-2 text-gray-500">
+                        ...
+                      </span>
+                    );
+                  }
+                  return null;
+                }
+
+                return (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCurrentPage(page)}
+                    className="w-8 h-8 p-0"
+                  >
+                    {page}
+                  </Button>
+                );
+              })}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       {viewDialogQuote && (
         <QuoteViewDialog
