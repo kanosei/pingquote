@@ -55,13 +55,13 @@ export function SettingsForm({ user }: { user: UserProfile }) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6 space-y-6">
       {alert && (
         <div
           className={`p-4 rounded-md ${
             alert.type === "error"
-              ? "bg-red-50 text-red-800 border border-red-200"
-              : "bg-green-50 text-green-800 border border-green-200"
+              ? "bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-400 border border-red-200 dark:border-red-800"
+              : "bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-400 border border-green-200 dark:border-green-800"
           }`}
         >
           {alert.message}
@@ -71,7 +71,7 @@ export function SettingsForm({ user }: { user: UserProfile }) {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Account Information */}
         <div>
-          <h2 className="text-xl font-semibold mb-4">Account Information</h2>
+          <h2 className="text-xl font-semibold mb-4 dark:text-gray-100">Account Information</h2>
           <div className="space-y-4">
             <div>
               <Label htmlFor="email">Email</Label>
@@ -80,9 +80,9 @@ export function SettingsForm({ user }: { user: UserProfile }) {
                 type="email"
                 value={user.email}
                 disabled
-                className="bg-gray-50"
+                className="bg-gray-50 dark:bg-gray-900"
               />
-              <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Email cannot be changed</p>
             </div>
 
             <div>
@@ -99,8 +99,8 @@ export function SettingsForm({ user }: { user: UserProfile }) {
         </div>
 
         {/* Company Information */}
-        <div className="border-t pt-6">
-          <h2 className="text-xl font-semibold mb-4">Company Information</h2>
+        <div className="border-t dark:border-gray-700 pt-6">
+          <h2 className="text-xl font-semibold mb-4 dark:text-gray-100">Company Information</h2>
           <div className="space-y-4">
             <div>
               <Label htmlFor="companyName">Company Name</Label>
@@ -111,7 +111,7 @@ export function SettingsForm({ user }: { user: UserProfile }) {
                 onChange={(e) => setCompanyName(e.target.value)}
                 placeholder="Acme Inc."
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 This will be displayed on your quotes
               </p>
             </div>
@@ -127,7 +127,7 @@ export function SettingsForm({ user }: { user: UserProfile }) {
                         alt="Company logo"
                         width={200}
                         height={200}
-                        className="rounded-lg border object-contain bg-white"
+                        className="rounded-lg border dark:border-gray-700 object-contain bg-white dark:bg-gray-900"
                         style={{ maxHeight: "200px", width: "auto" }}
                       />
                       <button
@@ -138,13 +138,13 @@ export function SettingsForm({ user }: { user: UserProfile }) {
                         <X className="h-4 w-4" />
                       </button>
                     </div>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       Click the X to remove and upload a new logo
                     </p>
                   </div>
                 ) : (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                    <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-6 text-center hover:border-gray-400 dark:hover:border-gray-600 transition-colors">
+                    <Upload className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 mb-4" />
                     <UploadButton<OurFileRouter, "logoUploader">
                       endpoint="logoUploader"
                       onClientUploadComplete={(res) => {
@@ -167,16 +167,16 @@ export function SettingsForm({ user }: { user: UserProfile }) {
                       appearance={{
                         button:
                           "ut-ready:bg-primary ut-uploading:cursor-not-allowed ut-uploading:bg-primary/50 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-colors text-sm font-medium",
-                        allowedContent: "text-xs text-gray-500 mt-2",
+                        allowedContent: "text-xs text-gray-500 dark:text-gray-400 mt-2",
                       }}
                     />
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                       PNG, JPG up to 4MB
                     </p>
                   </div>
                 )}
               </div>
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                 Your logo will appear on quotes and in OpenGraph previews
               </p>
             </div>
@@ -184,7 +184,7 @@ export function SettingsForm({ user }: { user: UserProfile }) {
         </div>
 
         {/* Save Button */}
-        <div className="border-t pt-6 flex justify-end">
+        <div className="border-t dark:border-gray-700 pt-6 flex justify-end">
           <Button type="submit" disabled={isSaving}>
             {isSaving ? (
               <>

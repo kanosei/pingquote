@@ -4,11 +4,12 @@ import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { LogOut, Plus, Settings } from "lucide-react";
 
 export function DashboardHeader() {
   return (
-    <header className="border-b bg-white sticky top-0 z-50 shadow-sm">
+    <header className="border-b bg-white dark:bg-gray-950 dark:border-gray-800 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16">
           <Link href="/dashboard">
@@ -21,6 +22,7 @@ export function DashboardHeader() {
                 <span className="hidden sm:inline">New Quote</span>
               </Button>
             </Link>
+            <ThemeToggle />
             <Link href="/settings">
               <Button
                 variant="ghost"

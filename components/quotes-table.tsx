@@ -56,7 +56,7 @@ export function QuotesTable({
   const [sortField, setSortField] = useState<SortField>("client");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
 
   const handleSendEmail = async (quoteId: string) => {
     setSendingEmail(quoteId);

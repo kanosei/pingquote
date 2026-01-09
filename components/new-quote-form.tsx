@@ -249,7 +249,7 @@ export function NewQuoteForm({ clients, lineItems }: NewQuoteFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {items.map((item, index) => (
-            <div key={index} className="space-y-3 p-4 border rounded-lg bg-gray-50">
+            <div key={index} className="space-y-3 p-4 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900">
               {/* Description - Full width */}
               <div>
                 <Label htmlFor={`description-${index}`}>Description</Label>
@@ -304,7 +304,7 @@ export function NewQuoteForm({ clients, lineItems }: NewQuoteFormProps) {
               </div>
 
               {/* Show line total on mobile */}
-              <div className="text-sm text-gray-600 text-right font-medium">
+              <div className="text-sm text-gray-600 dark:text-gray-400 text-right font-medium">
                 Total: {formatCurrency(item.quantity * (parseFloat(item.price) || 0), currency)}
               </div>
             </div>

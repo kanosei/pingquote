@@ -63,7 +63,7 @@ export function QuoteStatsCards({ stats }: QuoteStatsCardsProps) {
 
           return (
             <div key={currency}>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">{currency}</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{currency}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 {cards.map((card) => {
                   const Icon = card.icon;
@@ -71,13 +71,13 @@ export function QuoteStatsCards({ stats }: QuoteStatsCardsProps) {
                     return (
                       <div
                         key={card.title}
-                        className="bg-white rounded-lg border p-6 hover:shadow-md transition-shadow"
+                        className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-6 hover:shadow-md transition-shadow"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <p className="text-sm font-medium text-gray-600 mb-1 cursor-help">
+                                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1 cursor-help">
                                   {card.title}
                                 </p>
                               </TooltipTrigger>
@@ -85,10 +85,10 @@ export function QuoteStatsCards({ stats }: QuoteStatsCardsProps) {
                                 <p>Viewed in last 48 hours OR viewed more than once</p>
                               </TooltipContent>
                             </Tooltip>
-                            <p className="text-2xl font-bold text-gray-900 mb-1">
+                            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                               {card.value}
                             </p>
-                            <div className="text-xs text-gray-500 flex space-x-2">
+                            <div className="text-xs text-gray-500 dark:text-gray-400 flex space-x-2">
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <p className="cursor-help">
@@ -112,7 +112,7 @@ export function QuoteStatsCards({ stats }: QuoteStatsCardsProps) {
                             </div>
                           </div>
                           <div
-                            className={`${card.bgColor} ${card.color} p-3 rounded-lg`}
+                            className={`${card.bgColor} dark:bg-opacity-20 ${card.color} p-3 rounded-lg`}
                           >
                             <Icon className="h-5 w-5" />
                           </div>
@@ -123,20 +123,20 @@ export function QuoteStatsCards({ stats }: QuoteStatsCardsProps) {
                   return (
                     <div
                       key={card.title}
-                      className="bg-white rounded-lg border p-6 hover:shadow-md transition-shadow"
+                      className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-6 hover:shadow-md transition-shadow"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-600 mb-1">
+                          <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
                             {card.title}
                           </p>
-                          <p className="text-2xl font-bold text-gray-900 mb-1">
+                          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                             {card.value}
                           </p>
-                          <p className="text-xs text-gray-500">{card.description}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{card.description}</p>
                         </div>
                         <div
-                          className={`${card.bgColor} ${card.color} p-3 rounded-lg`}
+                          className={`${card.bgColor} dark:bg-opacity-20 ${card.color} p-3 rounded-lg`}
                         >
                           <Icon className="h-5 w-5" />
                         </div>
