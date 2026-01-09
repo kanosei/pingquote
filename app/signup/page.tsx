@@ -54,7 +54,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
           <Link href="/">
@@ -109,7 +109,7 @@ export default function SignupPage() {
               </div>
 
               {error && (
-                <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
+                <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-md border border-red-200 dark:border-red-800">
                   {error}
                 </div>
               )}
@@ -118,7 +118,7 @@ export default function SignupPage() {
                 {loading ? "Creating account..." : "Create account"}
               </Button>
 
-              <p className="text-sm text-center text-gray-600">
+              <p className="text-sm text-center text-gray-600 dark:text-gray-400">
                 Already have an account?{" "}
                 <Link href="/login" className="text-primary hover:underline">
                   Log in

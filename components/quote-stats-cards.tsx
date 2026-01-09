@@ -1,3 +1,5 @@
+"use client";
+
 import { QuoteStatsByCurrency } from "@/lib/quote-stats";
 import { formatCurrency } from "@/lib/utils";
 import { FileText, TrendingUp, Eye, Flame } from "lucide-react";
@@ -7,6 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface QuoteStatsCardsProps {
   stats: QuoteStatsByCurrency;
@@ -21,7 +24,17 @@ export function QuoteStatsCards({ stats }: QuoteStatsCardsProps) {
 
   return (
     <TooltipProvider>
-      <div className="space-y-8">
+      <Tabs defaultValue={currencies[0]} className="mb-8">
+        {currencies.length > 1 && (
+          <TabsList className="mb-6">
+            {currencies.map((currency) => (
+              <TabsTrigger key={currency} value={currency}>
+                {currency}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        )}
+
         {currencies.map((currency) => {
           const currencyStats = stats[currency];
           const cards = [
@@ -62,9 +75,8 @@ export function QuoteStatsCards({ stats }: QuoteStatsCardsProps) {
           ];
 
           return (
-            <div key={currency}>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{currency}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <TabsContent key={currency} value={currency}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {cards.map((card) => {
                   const Icon = card.icon;
                   if (card.title === "Hot Quotes") {
@@ -145,10 +157,10 @@ export function QuoteStatsCards({ stats }: QuoteStatsCardsProps) {
                   );
                 })}
               </div>
-            </div>
+            </TabsContent>
           );
         })}
-      </div>
+      </Tabs>
     </TooltipProvider>
   );
 }
