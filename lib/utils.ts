@@ -9,11 +9,12 @@ export function formatCurrency(amount: number, currency?: string): string {
   if (amount === 0) {
     return "";
   }
-  
-  const targetCurrency = currency || getLocaleCurrency();
-  const locale = (typeof window !== 'undefined' && navigator.language) || 'en-US';
 
-  return new Intl.NumberFormat(locale, {
+  const targetCurrency = currency || getLocaleCurrency();
+
+  // Use a consistent locale for both server and client to avoid hydration errors
+  // We use 'en-US' as the base locale for all currency formatting
+  return new Intl.NumberFormat('en-US', {
     style: "currency",
     currency: targetCurrency,
   }).format(amount);
