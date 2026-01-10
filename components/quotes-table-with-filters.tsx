@@ -97,7 +97,7 @@ export function QuotesTableWithFilters({
   }, [quotes, activeFilter, searchTerm]);
 
   return (
-    <div className="p-6">
+    <div className="p-3 sm:p-4 md:p-5 lg:p-6">
       <QuoteFilters
         activeFilter={activeFilter}
         onFilterChange={setActiveFilter}

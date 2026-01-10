@@ -76,14 +76,14 @@ export function QuoteStatsCards({ stats }: QuoteStatsCardsProps) {
 
           return (
             <TabsContent key={currency} value={currency}>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 {cards.map((card) => {
                   const Icon = card.icon;
                   if (card.title === "Hot Quotes") {
                     return (
                       <div
                         key={card.title}
-                        className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-6 hover:shadow-md transition-shadow"
+                        className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-4 sm:p-5 lg:p-6 hover:shadow-md transition-shadow"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
@@ -97,7 +97,7 @@ export function QuoteStatsCards({ stats }: QuoteStatsCardsProps) {
                                 <p>Viewed in last 48 hours OR viewed more than once</p>
                               </TooltipContent>
                             </Tooltip>
-                            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                               {card.value}
                             </p>
                             <div className="text-xs text-gray-500 dark:text-gray-400 flex space-x-2">
@@ -135,14 +135,14 @@ export function QuoteStatsCards({ stats }: QuoteStatsCardsProps) {
                   return (
                     <div
                       key={card.title}
-                      className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-6 hover:shadow-md transition-shadow"
+                      className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-4 sm:p-5 lg:p-6 hover:shadow-md transition-shadow"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
                             {card.title}
                           </p>
-                          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                          <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                             {card.value}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">{card.description}</p>

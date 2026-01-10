@@ -86,15 +86,15 @@ export function QuoteFilters({
 
   return (
     <TooltipProvider>
-      <div className="flex flex-col gap-4 mb-6">
+      <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
           <Input
             type="text"
-            placeholder="Filter by client, email, or line item..."
+            placeholder="Search quotes..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 w-full"
+            className="pl-10 w-full text-sm sm:text-base"
           />
           {showClearButton && (
             <Button
@@ -110,7 +110,7 @@ export function QuoteFilters({
             </Button>
           )}
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           {filters.map((filter) => {
             const Icon = filter.icon;
             const isActive = activeFilter === filter.id;
@@ -121,17 +121,17 @@ export function QuoteFilters({
                 variant={isActive ? "default" : "outline"}
                 size="sm"
                 onClick={() => onFilterChange(filter.id)}
-                className="gap-2"
+                className="gap-1 sm:gap-2 h-8 sm:h-9 text-xs sm:text-sm px-2 sm:px-3"
               >
                 {Icon && (
-                  <Icon className={`h-4 w-4 ${!isActive && filter.color}`} />
+                  <Icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${!isActive && filter.color}`} />
                 )}
-                {filter.label}
+                <span className="whitespace-nowrap">{filter.label}</span>
                 <span
-                  className={`ml-1 px-1.5 py-0.5 text-xs rounded-full ${
+                  className={`ml-0.5 sm:ml-1 px-1 sm:px-1.5 py-0.5 text-xs rounded-full ${
                     isActive
-                      ? "bg-white/20 text-white"
-                      : "bg-gray-100 text-gray-600"
+                      ? "bg-white/20 text-white dark:bg-white/20"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
                   }`}
                 >
                   {filter.count}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Quote, QuoteItem, QuoteView } from "@prisma/client";
+import { useIsMobile } from "@/hooks/use-breakpoint";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,6 +46,7 @@ export function QuotesTable({
   senderName: string;
 }) {
   const router = useRouter();
+  const isMobile = useIsMobile();
   const [sendingEmail, setSendingEmail] = useState<string | null>(null);
   const [deletingQuote, setDeletingQuote] = useState<string | null>(null);
   const [viewDialogQuote, setViewDialogQuote] = useState<QuoteWithRelations | null>(null);
@@ -240,15 +242,178 @@ export function QuotesTable({
         <div
           className={`mb-4 p-4 rounded-md ${
             alert.type === "error"
-              ? "bg-red-50 text-red-800 border border-red-200"
-              : "bg-green-50 text-green-800 border border-green-200"
+              ? "bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800"
+              : "bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800"
           }`}
         >
           {alert.message}
         </div>
       )}
 
-      <Table>
+      {/* Mobile Card View */}
+      {isMobile ? (
+        <div className="space-y-3">
+          {sortedAndPaginatedQuotes.map((quote) => {
+            const status = getQuoteStatus(quote.views);
+            const { total } = calculateQuoteTotals(
+              quote.items,
+              quote.discountType,
+              quote.discount
+            );
+            const viewCount = quote.views.length;
+
+            return (
+              <div
+                key={quote.id}
+                className="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg p-4 space-y-3"
+              >
+                {/* Header Row */}
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+                      {quote.clientName}
+                    </h3>
+                    {quote.clientEmail && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                        {quote.clientEmail}
+                      </p>
+                    )}
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 -mr-2"
+                        disabled={sendingEmail === quote.id || deletingQuote === quote.id}
+                      >
+                        {sendingEmail === quote.id || deletingQuote === quote.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <MoreVertical className="h-4 w-4" />
+                        )}
+                        <span className="sr-only">Open menu</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuItem asChild>
+                        <Link href={`/quotes/${quote.id}/edit`} className="flex items-center">
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit Quote
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setViewDialogQuote(quote)}>
+                        <Eye className="h-4 w-4 mr-2" />
+                        Preview
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href={`/q/${quote.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center"
+                        >
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          View Public Page
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => handleShare(quote)}>
+                        <Share2 className="h-4 w-4 mr-2" />
+                        Share
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleCopyLink(quote.id)}>
+                        {copiedQuoteId === quote.id ? (
+                          <Check className="h-4 w-4 mr-2 text-green-600" />
+                        ) : (
+                          <Copy className="h-4 w-4 mr-2" />
+                        )}
+                        {copiedQuoteId === quote.id ? "Copied!" : "Copy Link"}
+                      </DropdownMenuItem>
+                      {quote.clientEmail && (
+                        <DropdownMenuItem
+                          onClick={() => handleSendEmail(quote.id)}
+                          disabled={sendingEmail === quote.id}
+                        >
+                          <Mail className="h-4 w-4 mr-2" />
+                          {sendingEmail === quote.id ? "Sending..." : "Send Email"}
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteClick(quote.id, quote.clientName)}
+                        disabled={deletingQuote === quote.id}
+                        className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        {deletingQuote === quote.id ? "Deleting..." : "Delete"}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                {/* Value and Status Row */}
+                <div className="flex items-center justify-between text-sm">
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Value</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">
+                      {formatCurrency(total, quote.currency)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Status</p>
+                    <span className={`inline-flex items-center gap-1.5 text-sm ${getStatusColor(status)}`}>
+                      <span>{getStatusIcon(status)}</span>
+                      <span>{getStatusLabel(status)}</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Views and Engagement Row */}
+                <div className="flex items-center justify-between pt-2 border-t dark:border-gray-700">
+                  <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                    {viewCount > 0 ? (
+                      <Button
+                        variant="link"
+                        className="p-0 h-auto text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                        onClick={() => setViewHistoryQuote(quote)}
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        {viewCount} {viewCount === 1 ? "view" : "views"}
+                      </Button>
+                    ) : (
+                      <span className="flex items-center">
+                        <Eye className="h-3 w-3 mr-1" />
+                        No views
+                      </span>
+                    )}
+                    {quote.linkCopied > 0 && (
+                      <span className="inline-flex items-center gap-1">
+                        <Copy className="h-3 w-3" />
+                        {quote.linkCopied}
+                      </span>
+                    )}
+                    {quote.emailSent > 0 && (
+                      <span className="inline-flex items-center gap-1">
+                        <Mail className="h-3 w-3" />
+                        {quote.emailSent}
+                      </span>
+                    )}
+                  </div>
+                  <Link href={`/quotes/${quote.id}/edit`}>
+                    <Button variant="outline" size="sm" className="h-7 text-xs">
+                      <Edit className="h-3 w-3 mr-1" />
+                      Edit
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        /* Desktop Table View */
+        <Table>
         <TableHeader>
           <TableRow>
             <TableHead>
@@ -432,38 +597,41 @@ export function QuotesTable({
           })}
         </TableBody>
       </Table>
+      )}
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-2 py-4">
-          <div className="text-sm text-gray-700">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-2 py-4">
+          <div className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 order-2 sm:order-1">
             Showing <span className="font-medium">{startIndex}</span> to{" "}
             <span className="font-medium">{endIndex}</span> of{" "}
-            <span className="font-medium">{quotes.length}</span> quotes
+            <span className="font-medium">{quotes.length}</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2 order-1 sm:order-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
+              className="h-8 sm:h-9"
             >
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Previous
+              <ChevronLeft className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">Previous</span>
             </Button>
             <div className="flex items-center gap-1">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                // Show first page, last page, current page, and pages around current
-                const showPage =
-                  page === 1 ||
-                  page === totalPages ||
-                  (page >= currentPage - 1 && page <= currentPage + 1);
+                // On mobile, only show current page and adjacent pages
+                const showPage = isMobile
+                  ? page >= currentPage - 1 && page <= currentPage + 1
+                  : page === 1 ||
+                    page === totalPages ||
+                    (page >= currentPage - 1 && page <= currentPage + 1);
 
                 if (!showPage) {
                   // Show ellipsis
                   if (page === currentPage - 2 || page === currentPage + 2) {
                     return (
-                      <span key={page} className="px-2 text-gray-500">
+                      <span key={page} className="px-1 sm:px-2 text-gray-500 dark:text-gray-400 text-sm">
                         ...
                       </span>
                     );
@@ -477,7 +645,7 @@ export function QuotesTable({
                     variant={currentPage === page ? "default" : "outline"}
                     size="sm"
                     onClick={() => setCurrentPage(page)}
-                    className="w-8 h-8 p-0"
+                    className="w-8 h-8 sm:w-9 sm:h-9 p-0 text-xs sm:text-sm"
                   >
                     {page}
                   </Button>
@@ -489,9 +657,10 @@ export function QuotesTable({
               size="sm"
               onClick={() => setCurrentPage(currentPage + 1)}
               disabled={currentPage === totalPages}
+              className="h-8 sm:h-9"
             >
-              Next
-              <ChevronRight className="h-4 w-4 ml-1" />
+              <span className="hidden sm:inline">Next</span>
+              <ChevronRight className="h-4 w-4 sm:ml-1" />
             </Button>
           </div>
         </div>
