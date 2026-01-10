@@ -270,11 +270,11 @@ export function QuotesTable({
                 {/* Header Row */}
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+                    <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
                       {quote.clientName}
                     </h3>
                     {quote.clientEmail && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                         {quote.clientEmail}
                       </p>
                     )}
@@ -353,16 +353,16 @@ export function QuotesTable({
                 </div>
 
                 {/* Value and Status Row */}
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Value</p>
-                    <p className="font-semibold text-gray-900 dark:text-gray-100">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Value</p>
+                    <p className="text-base font-semibold text-gray-900 dark:text-gray-100">
                       {formatCurrency(total, quote.currency)}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Status</p>
-                    <span className={`inline-flex items-center gap-1.5 text-sm ${getStatusColor(status)}`}>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Status</p>
+                    <span className={`inline-flex items-center gap-1.5 text-base ${getStatusColor(status)}`}>
                       <span>{getStatusIcon(status)}</span>
                       <span>{getStatusLabel(status)}</span>
                     </span>
@@ -371,38 +371,38 @@ export function QuotesTable({
 
                 {/* Views and Engagement Row */}
                 <div className="flex items-center justify-between pt-2 border-t dark:border-gray-700">
-                  <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                     {viewCount > 0 ? (
                       <Button
                         variant="link"
-                        className="p-0 h-auto text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                        className="p-0 h-auto text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                         onClick={() => setViewHistoryQuote(quote)}
                       >
-                        <Eye className="h-3 w-3 mr-1" />
+                        <Eye className="h-4 w-4 mr-1" />
                         {viewCount} {viewCount === 1 ? "view" : "views"}
                       </Button>
                     ) : (
                       <span className="flex items-center">
-                        <Eye className="h-3 w-3 mr-1" />
+                        <Eye className="h-4 w-4 mr-1" />
                         No views
                       </span>
                     )}
                     {quote.linkCopied > 0 && (
                       <span className="inline-flex items-center gap-1">
-                        <Copy className="h-3 w-3" />
+                        <Copy className="h-4 w-4" />
                         {quote.linkCopied}
                       </span>
                     )}
                     {quote.emailSent > 0 && (
                       <span className="inline-flex items-center gap-1">
-                        <Mail className="h-3 w-3" />
+                        <Mail className="h-4 w-4" />
                         {quote.emailSent}
                       </span>
                     )}
                   </div>
                   <Link href={`/quotes/${quote.id}/edit`}>
-                    <Button variant="outline" size="sm" className="h-7 text-xs">
-                      <Edit className="h-3 w-3 mr-1" />
+                    <Button variant="outline" size="sm" className="h-8 text-sm px-3">
+                      <Edit className="h-4 w-4 mr-1" />
                       Edit
                     </Button>
                   </Link>

@@ -163,7 +163,7 @@ export function EditQuoteForm({ quote }: EditQuoteFormProps) {
               placeholder="client@example.com"
               disabled={loading}
             />
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-gray-300">
               Add an email to enable sending the quote directly to your client
             </p>
           </div>
@@ -192,7 +192,7 @@ export function EditQuoteForm({ quote }: EditQuoteFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {items.map((item, index) => (
-            <div key={index} className="space-y-3 p-4 border rounded-lg bg-gray-50">
+            <div key={index} className="space-y-3 p-4 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900">
               {/* Description - Full width */}
               <div>
                 <Label htmlFor={`description-${index}`}>Description</Label>
@@ -245,7 +245,7 @@ export function EditQuoteForm({ quote }: EditQuoteFormProps) {
               </div>
 
               {/* Show line total on mobile */}
-              <div className="text-sm text-gray-600 text-right font-medium">
+              <div className="text-sm text-gray-600 dark:text-gray-300 text-right font-medium">
                 Total: {formatCurrency(item.quantity * (parseFloat(item.price) || 0), currency)}
               </div>
             </div>
@@ -275,7 +275,7 @@ export function EditQuoteForm({ quote }: EditQuoteFormProps) {
                 id="discountType"
                 value={discountType}
                 onChange={(e) => setDiscountType(e.target.value as "none" | "percentage" | "fixed")}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 disabled={loading}
               >
                 <option value="none">No discount</option>
@@ -345,27 +345,27 @@ export function EditQuoteForm({ quote }: EditQuoteFormProps) {
         <CardContent className="pt-6">
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Subtotal</span>
-              <span>{formatCurrency(subtotal, currency)}</span>
+              <span className="text-gray-600 dark:text-gray-300">Subtotal</span>
+              <span className="dark:text-gray-100">{formatCurrency(subtotal, currency)}</span>
             </div>
             {discountAmount > 0 && (
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">
+                <span className="text-gray-600 dark:text-gray-300">
                   Discount {discountType === "percentage" && `(${discount}%)`}
                 </span>
-                <span className="text-red-600">-{formatCurrency(discountAmount, currency)}</span>
+                <span className="text-red-600 dark:text-red-400">-{formatCurrency(discountAmount, currency)}</span>
               </div>
             )}
-            <div className="flex justify-between text-lg font-semibold pt-2 border-t">
-              <span>Total</span>
-              <span>{formatCurrency(total, currency)}</span>
+            <div className="flex justify-between text-lg font-semibold pt-2 border-t dark:border-gray-700">
+              <span className="dark:text-gray-100">Total</span>
+              <span className="dark:text-gray-100">{formatCurrency(total, currency)}</span>
             </div>
           </div>
         </CardContent>
       </Card>
 
       {error && (
-        <div className="mb-6 text-sm text-red-600 bg-red-50 p-3 rounded-md">
+        <div className="mb-6 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 rounded-md">
           {error}
         </div>
       )}

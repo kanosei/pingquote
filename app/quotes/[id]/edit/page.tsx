@@ -22,9 +22,9 @@ export default async function EditQuotePage({ params }: { params: { id: string }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="border-b bg-white">
+      <header className="border-b dark:border-gray-800 bg-white dark:bg-gray-950">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Logo />
@@ -41,8 +41,8 @@ export default async function EditQuotePage({ params }: { params: { id: string }
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Edit Quote</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Edit Quote</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
             Update quote for {quote.clientName}
           </p>
         </div>

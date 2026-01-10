@@ -89,7 +89,7 @@ export function QuoteStatsCards({ stats }: QuoteStatsCardsProps) {
                           <div className="flex-1">
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1 cursor-help">
+                                <p className="text-sm sm:text-sm font-medium text-gray-600 dark:text-gray-400 mb-1 cursor-help">
                                   {card.title}
                                 </p>
                               </TooltipTrigger>
@@ -97,10 +97,10 @@ export function QuoteStatsCards({ stats }: QuoteStatsCardsProps) {
                                 <p>Viewed in last 48 hours OR viewed more than once</p>
                               </TooltipContent>
                             </Tooltip>
-                            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                            <p className="text-2xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                               {card.value}
                             </p>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 flex space-x-2">
+                            <div className="text-sm sm:text-xs text-gray-500 dark:text-gray-400 flex space-x-2">
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <p className="cursor-help">
@@ -139,13 +139,13 @@ export function QuoteStatsCards({ stats }: QuoteStatsCardsProps) {
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                          <p className="text-sm sm:text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
                             {card.title}
                           </p>
-                          <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                          <p className="text-2xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                             {card.value}
                           </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">{card.description}</p>
+                          <p className="text-sm sm:text-xs text-gray-500 dark:text-gray-400">{card.description}</p>
                         </div>
                         <div
                           className={`${card.bgColor} dark:bg-opacity-20 ${card.color} p-3 rounded-lg`}
