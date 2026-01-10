@@ -157,7 +157,7 @@ export default async function PublicQuotePage({ params }: { params: { id: string
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <h3 className="text-sm font-medium text-gray-600 mb-1">From</h3>
-                  <p className="font-medium">
+                  <p className="font-medium text-gray-900">
                     {quote.user.companyName || quote.user.name || "PingQuote User"}
                   </p>
                   {quote.user.companyName && quote.user.name && (
@@ -167,7 +167,7 @@ export default async function PublicQuotePage({ params }: { params: { id: string
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-600 mb-1">To</h3>
-                  <p className="font-medium">{quote.clientName}</p>
+                  <p className="font-medium text-gray-900">{quote.clientName}</p>
                 </div>
               </div>
             </div>
