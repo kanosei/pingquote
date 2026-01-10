@@ -91,7 +91,7 @@ export default async function PublicQuotePage({ params }: { params: { id: string
       {/* Client-side component to track view on mount */}
       <QuoteViewTracker quoteId={params.id} />
 
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="light min-h-screen bg-gray-50 py-12 px-4">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-8 mb-6">
@@ -175,7 +175,7 @@ export default async function PublicQuotePage({ params }: { params: { id: string
 
           {/* Line Items */}
           <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-8 mb-6">
-            <h2 className="text-xl font-semibold mb-6">Quote Details</h2>
+            <h2 className="text-xl font-semibold mb-6 text-gray-900">Quote Details</h2>
 
             {/* Desktop Table View */}
             <div className="hidden sm:block overflow-x-auto">
@@ -191,10 +191,10 @@ export default async function PublicQuotePage({ params }: { params: { id: string
                 <tbody>
                   {quote.items.map((item: any) => (
                     <tr key={item.id} className="border-b last:border-0">
-                      <td className="py-4">{item.description}</td>
-                      <td className="py-4 text-right">{item.quantity}</td>
-                      <td className="py-4 text-right">{formatCurrency(item.price, quote.currency)}</td>
-                      <td className="py-4 text-right font-medium">
+                      <td className="py-4 text-gray-900">{item.description}</td>
+                      <td className="py-4 text-right text-gray-900">{item.quantity}</td>
+                      <td className="py-4 text-right text-gray-900">{formatCurrency(item.price, quote.currency)}</td>
+                      <td className="py-4 text-right font-medium text-gray-900">
                         {formatCurrency(item.quantity * item.price, quote.currency)}
                       </td>
                     </tr>
@@ -211,16 +211,16 @@ export default async function PublicQuotePage({ params }: { params: { id: string
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
                       <span className="text-gray-600">Quantity:</span>
-                      <span className="ml-2 font-medium">{item.quantity}</span>
+                      <span className="ml-2 font-medium text-gray-900">{item.quantity}</span>
                     </div>
                     <div className="text-right">
                       <span className="text-gray-600">Price:</span>
-                      <span className="ml-2 font-medium">{formatCurrency(item.price, quote.currency)}</span>
+                      <span className="ml-2 font-medium text-gray-900">{formatCurrency(item.price, quote.currency)}</span>
                     </div>
                   </div>
                   <div className="mt-2 pt-2 border-t flex justify-between items-center">
                     <span className="text-gray-600 text-sm">Total:</span>
-                    <span className="font-bold text-lg">
+                    <span className="font-bold text-lg text-gray-900">
                       {formatCurrency(item.quantity * item.price, quote.currency)}
                     </span>
                   </div>
@@ -233,7 +233,7 @@ export default async function PublicQuotePage({ params }: { params: { id: string
               <div className="space-y-2 max-w-xs ml-auto">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">{formatCurrency(subtotal, quote.currency)}</span>
+                  <span className="font-medium text-gray-900">{formatCurrency(subtotal, quote.currency)}</span>
                 </div>
 
                 {discountAmount > 0 && (
@@ -249,8 +249,8 @@ export default async function PublicQuotePage({ params }: { params: { id: string
                 )}
 
                 <div className="flex justify-between pt-2 border-t text-lg">
-                  <span className="font-semibold">Total</span>
-                  <span className="font-bold">{formatCurrency(total, quote.currency)}</span>
+                  <span className="font-semibold text-gray-900">Total</span>
+                  <span className="font-bold text-gray-900">{formatCurrency(total, quote.currency)}</span>
                 </div>
               </div>
             </div>
@@ -259,7 +259,7 @@ export default async function PublicQuotePage({ params }: { params: { id: string
           {/* Notes */}
           {quote.notes && (
             <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-8 mb-6">
-              <h2 className="text-xl font-semibold mb-4">Additional Notes</h2>
+              <h2 className="text-xl font-semibold mb-4 text-gray-900">Additional Notes</h2>
               <p className="text-gray-700 whitespace-pre-wrap">{quote.notes}</p>
             </div>
           )}
@@ -267,7 +267,7 @@ export default async function PublicQuotePage({ params }: { params: { id: string
           {/* Payment Link */}
           {quote.paymentLink && (
             <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-8 mb-6">
-              <h2 className="text-xl font-semibold mb-4">Payment</h2>
+              <h2 className="text-xl font-semibold mb-4 text-gray-900">Payment</h2>
               <PaymentLinkPreview url={quote.paymentLink} />
             </div>
           )}

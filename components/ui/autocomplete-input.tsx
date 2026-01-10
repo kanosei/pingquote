@@ -118,15 +118,15 @@ export function AutocompleteInput({
       />
 
       {isOpen && filteredOptions.length > 0 && (
-        <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
+        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto">
           {filteredOptions.map((option, index) => (
             <div
               key={option.value}
               className={cn(
-                "px-3 py-2 cursor-pointer text-sm",
+                "px-3 py-2 cursor-pointer text-sm dark:text-gray-200",
                 index === highlightedIndex
-                  ? "bg-gray-100"
-                  : "hover:bg-gray-50"
+                  ? "bg-gray-100 dark:bg-gray-700"
+                  : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
               )}
               onClick={() => handleOptionClick(option)}
               onMouseEnter={() => setHighlightedIndex(index)}
