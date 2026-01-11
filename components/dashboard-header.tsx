@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { LogOut, Plus, Settings } from "lucide-react";
+import { LogOut, Plus, Settings, Users } from "lucide-react";
 
 export function DashboardHeader() {
   return (
@@ -23,6 +23,16 @@ export function DashboardHeader() {
               </Button>
             </Link>
             <ThemeToggle />
+            <Link href="/dashboard/team">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10"
+              >
+                <Users className="h-4 w-4" />
+                <span className="sr-only">Team</span>
+              </Button>
+            </Link>
             <Link href="/settings">
               <Button
                 variant="ghost"

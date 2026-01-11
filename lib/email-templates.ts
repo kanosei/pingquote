@@ -237,3 +237,125 @@ Sent by PingQuote - Know when your quotes are viewed
 https://pingquote.com
   `.trim();
 }
+
+// Team Invite Email
+interface TeamInviteEmailData {
+  invitedEmail: string;
+  organizationName: string;
+  inviterName: string;
+  inviteUrl: string;
+}
+
+export function getTeamInviteEmailHtml(data: TeamInviteEmailData): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f9fafb;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; padding: 40px 0;">
+    <tr>
+      <td align="center">
+        <!-- Main Container -->
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e5e7eb; overflow: hidden;">
+
+          <!-- Header -->
+          <tr>
+            <td style="padding: 32px 30px 24px; border-bottom: 1px solid #e5e7eb; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding-right: 12px; vertical-align: middle;">
+                    <div style="width: 48px; height: 48px; background-color: rgba(255,255,255,0.2); border-radius: 8px; display: inline-flex; align-items: center; justify-content: center;">
+                      <span style="font-size: 28px;">👥</span>
+                    </div>
+                  </td>
+                  <td style="vertical-align: middle;">
+                    <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #ffffff; line-height: 1.2;">You're invited to join ${data.organizationName}</h1>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Content -->
+          <tr>
+            <td style="padding: 32px 30px;">
+              <p style="margin: 0 0 16px 0; font-size: 16px; color: #111827; line-height: 1.5;">Hi there,</p>
+
+              <p style="margin: 0 0 24px 0; font-size: 15px; color: #4b5563; line-height: 1.6;">
+                <strong style="color: #111827;">${data.inviterName}</strong> has invited you to join <strong style="color: #111827;">${data.organizationName}</strong> on PingQuote.
+              </p>
+
+              <!-- Info Box -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
+                <tr>
+                  <td style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 6px;">
+                    <p style="margin: 0 0 8px 0; color: #1e3a8a; font-size: 14px; font-weight: 600;">What is PingQuote?</p>
+                    <p style="margin: 0; color: #1e40af; font-size: 14px; line-height: 1.5;">PingQuote helps teams create and share professional quotes with clients. As a team member, you'll be able to collaborate on quotes and track client engagement.</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA Button -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="${data.inviteUrl}" style="display: inline-block; padding: 14px 32px; background-color: #3b82f6; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">Accept Invitation</a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 24px 0; font-size: 14px; color: #6b7280; line-height: 1.6; text-align: center;">
+                This invitation is specifically for <strong style="color: #111827;">${data.invitedEmail}</strong>
+              </p>
+
+              <p style="margin: 24px 0 0 0; font-size: 14px; color: #6b7280; line-height: 1.6;">
+                If you have any questions, feel free to reply to this email.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f9fafb; padding: 24px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 0; font-size: 13px; color: #6b7280; line-height: 1.5;">
+                Sent by <a href="https://pingquote.com" style="color: #3b82f6; text-decoration: none; font-weight: 500;">PingQuote</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `.trim();
+}
+
+export function getTeamInviteEmailText(data: TeamInviteEmailData): string {
+  return `
+👥 You're invited to join ${data.organizationName}
+
+Hi there,
+
+${data.inviterName} has invited you to join ${data.organizationName} on PingQuote.
+
+What is PingQuote?
+PingQuote helps teams create and share professional quotes with clients. As a team member, you'll be able to collaborate on quotes and track client engagement.
+
+Accept your invitation:
+${data.inviteUrl}
+
+This invitation is specifically for ${data.invitedEmail}
+
+If you have any questions, feel free to reply to this email.
+
+---
+Sent by PingQuote
+https://pingquote.com
+  `.trim();
+}

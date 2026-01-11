@@ -16,7 +16,7 @@ model User {
   email       String   @unique
   name        String?
   password    String
-  companyName String?  // Company/business name
+  companyName String?  // Company/business name (deprecated - use Organization)
   logoUrl     String?  // URL to uploaded company logo
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -28,34 +28,89 @@ model User {
   // stripeCurrentPeriodEnd DateTime?
   // subscriptionStatus     String?   // active, canceled, past_due, etc.
 
-  quotes Quote[]
+  quotes               Quote[]
+  organizationMembers  OrganizationMember[]
 
   @@map("users")
 }
 
+// Organization model - multi-user companies
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  logoUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members OrganizationMember[]
+  invites OrganizationInvite[]
+  quotes  Quote[]
+
+  @@map("organizations")
+}
+
+// Organization membership - links users to organizations with roles
+model OrganizationMember {
+  id             String   @id @default(cuid())
+  userId         String
+  organizationId String
+  role           String   @default("member") // "owner", "admin", "member"
+  joinedAt       DateTime @default(now())
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+  @@index([userId])
+  @@index([organizationId])
+  @@map("organization_members")
+}
+
+// Organization invites - shareable codes/links for joining
+model OrganizationInvite {
+  id             String    @id @default(cuid())
+  organizationId String
+  email          String?   // Optional: for email-specific invites
+  code           String    @unique // Unique invite code
+  expiresAt      DateTime?
+  maxUses        Int?      // null = unlimited uses
+  usedCount      Int       @default(0)
+  createdBy      String    // userId who created the invite
+  createdAt      DateTime  @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([code])
+  @@index([organizationId])
+  @@map("organization_invites")
+}
+
 // Quote model
 model Quote {
-  id           String    @id @default(cuid())
-  userId       String
-  clientName   String
-  clientEmail  String?   // Optional email address for the client
-  currency     String    @default("USD") // Currency code (USD, GBP, EUR, etc.)
-  discountType String?   // "percentage" or "fixed"
-  discount     Float     @default(0)
-  notes        String?   @db.Text
-  paymentLink  String?   // Optional payment link (Stripe, PayPal, etc.)
-  linkCopied   Int       @default(0) // Count of times link was copied
-  emailSent    Int       @default(0) // Count of times email was sent
-  editedAt     DateTime? // Timestamp of last edit (null if never edited)
-  deletedAt    DateTime? // Soft delete timestamp
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id             String    @id @default(cuid())
+  userId         String
+  organizationId String?   // Optional: quotes can belong to an organization
+  clientName     String
+  clientEmail    String?   // Optional email address for the client
+  currency       String    @default("USD") // Currency code (USD, GBP, EUR, etc.)
+  discountType   String?   // "percentage" or "fixed"
+  discount       Float     @default(0)
+  notes          String?   @db.Text
+  paymentLink    String?   // Optional payment link (Stripe, PayPal, etc.)
+  linkCopied     Int       @default(0) // Count of times link was copied
+  emailSent      Int       @default(0) // Count of times email was sent
+  editedAt       DateTime? // Timestamp of last edit (null if never edited)
+  deletedAt      DateTime? // Soft delete timestamp
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  user  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items QuoteItem[]
-  views QuoteView[]
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  items        QuoteItem[]
+  views        QuoteView[]
 
   @@index([userId])
+  @@index([organizationId])
   @@index([deletedAt])
   @@map("quotes")
 }

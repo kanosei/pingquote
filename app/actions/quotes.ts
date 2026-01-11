@@ -7,6 +7,15 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
 
+// Helper function to get user's organization IDs
+async function getUserOrganizationIds(userId: string): Promise<string[]> {
+  const memberships = await prisma.organizationMember.findMany({
+    where: { userId },
+    select: { organizationId: true },
+  });
+  return memberships.map((m) => m.organizationId);
+}
+
 const quoteItemSchema = z.object({
   description: z.string().min(1, "Description is required"),
   quantity: z.number().min(0.01, "Quantity must be positive"),
@@ -49,10 +58,15 @@ export async function createQuote(formData: FormData) {
 
     const validated = createQuoteSchema.parse(data);
 
+    // Get user's primary organization (first one they're a member of)
+    const organizationIds = await getUserOrganizationIds(session.user.id);
+    const primaryOrgId = organizationIds.length > 0 ? organizationIds[0] : null;
+
     // Create quote with items in a transaction
     const quote = await prisma.quote.create({
       data: {
         userId: session.user.id,
+        organizationId: primaryOrgId,
         clientName: validated.clientName,
         clientEmail: validated.clientEmail || null,
         currency: validated.currency,
@@ -85,9 +99,18 @@ export async function getQuotes() {
       redirect("/login");
     }
 
+    // Get user's organization IDs
+    const organizationIds = await getUserOrganizationIds(session.user.id);
+
+    // Get quotes: user's own quotes OR quotes from their organizations
     const quotes = await prisma.quote.findMany({
       where: {
-        userId: session.user.id,
+        OR: [
+          { userId: session.user.id },
+          ...(organizationIds.length > 0
+            ? [{ organizationId: { in: organizationIds } }]
+            : []),
+        ],
         deletedAt: null, // Exclude soft-deleted quotes
       },
       include: {
@@ -95,6 +118,12 @@ export async function getQuotes() {
         views: {
           orderBy: {
             viewedAt: "desc",
+          },
+        },
+        user: {
+          select: {
+            name: true,
+            email: true,
           },
         },
       },
@@ -118,10 +147,18 @@ export async function getUniqueClients() {
       return [];
     }
 
-    // Get unique clients by grouping quotes
+    // Get user's organization IDs
+    const organizationIds = await getUserOrganizationIds(session.user.id);
+
+    // Get unique clients by grouping quotes (including organization quotes)
     const quotes = await prisma.quote.findMany({
       where: {
-        userId: session.user.id,
+        OR: [
+          { userId: session.user.id },
+          ...(organizationIds.length > 0
+            ? [{ organizationId: { in: organizationIds } }]
+            : []),
+        ],
         deletedAt: null, // Exclude soft-deleted quotes
       },
       select: {
@@ -167,11 +204,19 @@ export async function getUniqueLineItems() {
       return [];
     }
 
-    // Get all line items from user's quotes, most recent first
+    // Get user's organization IDs
+    const organizationIds = await getUserOrganizationIds(session.user.id);
+
+    // Get all line items from user's quotes and organization quotes, most recent first
     const items = await prisma.quoteItem.findMany({
       where: {
         quote: {
-          userId: session.user.id,
+          OR: [
+            { userId: session.user.id },
+            ...(organizationIds.length > 0
+              ? [{ organizationId: { in: organizationIds } }]
+              : []),
+          ],
         },
       },
       select: {
@@ -216,15 +261,29 @@ export async function getQuote(id: string) {
       return null;
     }
 
+    // Get user's organization IDs
+    const organizationIds = await getUserOrganizationIds(session.user.id);
+
     const quote = await prisma.quote.findFirst({
       where: {
         id,
-        userId: session.user.id,
+        OR: [
+          { userId: session.user.id },
+          ...(organizationIds.length > 0
+            ? [{ organizationId: { in: organizationIds } }]
+            : []),
+        ],
         deletedAt: null, // Exclude soft-deleted quotes
       },
       include: {
         items: true,
         views: true,
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
       },
     });
 
@@ -243,11 +302,19 @@ export async function deleteQuote(id: string) {
       return { error: "Unauthorized" };
     }
 
-    // Verify ownership before deleting
+    // Get user's organization IDs
+    const organizationIds = await getUserOrganizationIds(session.user.id);
+
+    // Verify ownership or organization membership before deleting
     const quote = await prisma.quote.findFirst({
       where: {
         id,
-        userId: session.user.id,
+        OR: [
+          { userId: session.user.id },
+          ...(organizationIds.length > 0
+            ? [{ organizationId: { in: organizationIds } }]
+            : []),
+        ],
         deletedAt: null, // Only allow deleting non-deleted quotes
       },
     });
@@ -404,11 +471,19 @@ export async function updateQuote(id: string, formData: FormData) {
       return { error: "Unauthorized" };
     }
 
-    // Verify ownership
+    // Get user's organization IDs
+    const organizationIds = await getUserOrganizationIds(session.user.id);
+
+    // Verify ownership or organization membership
     const existingQuote = await prisma.quote.findFirst({
       where: {
         id,
-        userId: session.user.id,
+        OR: [
+          { userId: session.user.id },
+          ...(organizationIds.length > 0
+            ? [{ organizationId: { in: organizationIds } }]
+            : []),
+        ],
         deletedAt: null,
       },
       include: {
